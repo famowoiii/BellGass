@@ -1,9 +1,7 @@
-// Cart.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { MdShoppingCartCheckout } from "react-icons/md";
-import { IoIosAddCircle } from "react-icons/io";
-import { AiFillMinusCircle } from "react-icons/ai";
+import { IoIosAddCircle, IoIosRemoveCircle } from "react-icons/io";
 
 function Cart({
   cartItem,
@@ -15,54 +13,76 @@ function Cart({
 }) {
   const [cartValue, setCartValue] = useState(0);
 
+  useEffect(() => {
+    // Memperbarui total keranjang setiap kali ada perubahan pada cartItem
+    setCartValue(calculateTotal());
+  }, [cartItem, calculateTotal]);
+
   return (
-    <div className="mx-8 lg:mx-32 my-10">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
-        {cartItem.length === 0 && (
-          <div>Cart is empty, Please Select the Products!</div>
-        )}
-        {cartItem.map((selectedProduct, index) => (
-          <div
-            key={selectedProduct.id}
-            className="bg-gray-300 drop-shadow-xl rounded-xl border-red hover:bg-gray-400 duration-200 p-3 flex flex-col justify-center"
-          >
-            <div className="text-center">{selectedProduct.author}</div>
-            <img
-              src={selectedProduct.download_url}
-              alt=""
-              className="mx-auto my-4"
-            />
-            <div className="flex flex-col items-center">
-              <div className="flex flex-row gap-2">
-                <button onClick={() => removeCountHandler(index)}>
-                  <AiFillMinusCircle size={24} />
-                </button>
-                <div>{countItems[index]}</div>
-                <button onClick={() => addCountHandler(index)}>
-                  <IoIosAddCircle size={24} />
-                </button>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex flex-wrap justify-center gap-6">
+        {cartItem.length === 0 ? (
+          <div className="text-center text-gray-600">Your cart is empty.</div>
+        ) : (
+          cartItem.map((selectedProduct, index) => (
+            <div
+              key={selectedProduct.id}
+              className="bg-white rounded-lg shadow-md overflow-hidden flex items-center p-4"
+            >
+              <img
+                src={selectedProduct.download_url}
+                alt={selectedProduct.author}
+                className="w-1/6 h-auto object-cover mr-4"
+              />
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold mb-2">
+                  {selectedProduct.author}
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Type: {selectedProduct.type}
+                </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <button
+                      onClick={() => removeCountHandler(index)}
+                      className="text-red hover:text-red"
+                    >
+                      <IoIosRemoveCircle size={20} />
+                    </button>
+                    <span className="mx-2">{countItems[index]}</span>
+                    <button
+                      onClick={() => addCountHandler(index)}
+                      className="text-green-500 hover:text-green-700"
+                    >
+                      <IoIosAddCircle size={20} />
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => removeFromCart(index)}
+                    className="text-red hover:text-red"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
-              <button
-                className="bg-red px-3 py-2 rounded-lg"
-                onClick={() => removeFromCart(index)}
-              >
-                Remove the item
-              </button>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
-      <div className="my-6">
-        {cartItem.length > 0 && (
+      {cartItem.length > 0 && (
+        <div className="flex justify-between items-center mt-8">
+          <div className="text-xl font-semibold">
+            Total: ${cartValue.toFixed(2)}
+          </div>
           <Link
             to="/checkout"
-            className="bg-red px-7 py-2 rounded-xl duration-200 flex flex-row hover:scale-105 w-fit font-signika drop-shadow-md hover:text-white"
+            className="bg-red text-white py-2 px-6 rounded-md hover:bg-red transition duration-200 flex items-center"
           >
-            <MdShoppingCartCheckout size={24} /> | Checkout Items
+            <MdShoppingCartCheckout size={24} className="mr-2" />
+            Checkout
           </Link>
-        )}
-        <div className="div">Total: {calculateTotal()}</div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

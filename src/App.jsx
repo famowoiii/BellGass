@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
 import Navbar from "./components/Navbar";
@@ -9,14 +9,16 @@ import Registration from "./pages/Registration";
 import Details from "./pages/Details";
 import Cart from "./pages/Cart";
 import CheckOut from "./pages/CheckOut";
-import AddProduct from "./admin/AddProduct";
-import UpdateProduct from "./admin/UpdateProduct";
-import CrudProduct from "./admin/CrudProduct";
 import Refill from "./pages/Refill";
+import ProductDashboard from "./admin/CRUD";
+import Dashboard from "./admin/Dashboard";
+import OrderConfirmation from "./admin/UserService";
+import Profile from "./pages/Profile";
 
 function App() {
   const [cartItem, setCartItem] = useState([]);
   const [countItems, setCountItems] = useState([]);
+  const location = useLocation();
 
   // Menggunakan useEffect untuk mengupdate countItems ketika cartItem berubah
   useEffect(() => {
@@ -47,15 +49,31 @@ function App() {
     return total;
   };
 
-  const addToCart = (products) => {
-    const exist = cartItem.find((x) => x.id === products.id);
+  const addToCart = (productToAdd) => {
+    const existingProductIndex = cartItem.findIndex(
+      (item) => item.id === productToAdd.id
+    );
 
-    if (exist) {
-      alert("this product is already added");
+    if (existingProductIndex !== -1) {
+      // Produk dengan ID yang sama sudah ada di keranjang
+      // Cek apakah produk dengan tipe yang sama sudah ada
+      const existingProductWithSameTypeIndex = cartItem.findIndex(
+        (item) => item.id === productToAdd.id && item.type === productToAdd.type
+      );
+
+      if (existingProductWithSameTypeIndex !== -1) {
+        // Produk dengan tipe yang sama sudah ada di keranjang, tambahkan kuantitasnya
+        const updatedCartItem = [...cartItem];
+        updatedCartItem[existingProductWithSameTypeIndex].quantity += 1;
+        setCartItem(updatedCartItem);
+      } else {
+        // Produk dengan tipe yang berbeda, tambahkan produk baru dengan tipe yang berbeda
+        setCartItem([...cartItem, { ...productToAdd, quantity: 1 }]);
+      }
     } else {
-      setCartItem([...cartItem, { ...products, quantity: 1 }]);
+      // Produk belum ada di keranjang, tambahkan produk baru
+      setCartItem([...cartItem, { ...productToAdd, quantity: 1 }]);
     }
-    console.log(cartItem);
   };
 
   const removeFromCart = (index) => {
@@ -64,12 +82,14 @@ function App() {
     setCartItem(newCartItems); // Perbarui state cartItem
   };
 
-  // Penutupan kurung kurawal untuk fungsi App
+  // Fungsi untuk mengecek apakah pengguna berada di rute admin
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
   return (
     <>
-      <div className="min-w-screem bg-white min-h-lvh">
-        <Navbar />
-
+      <div className="min-w-screen bg-white min-h-screen">
+        {/* Menampilkan navbar jika bukan rute admin */}
+        {!isAdminRoute && <Navbar />}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/details/:id" element={<Details />} />
@@ -79,7 +99,6 @@ function App() {
           />
           <Route path="/aboutus" element={<About />} />
           <Route path="/login" element={<Registration />} />
-          <Route path="/addproduct" element={<AddProduct />} />
           <Route
             path="/cart"
             element={
@@ -93,7 +112,7 @@ function App() {
               />
             }
           />
-          <Route path="/updateproduct/:id" element={<UpdateProduct />} />
+          <Route path="/profile" element={<Profile />} />
           <Route
             path="/refill"
             element={
@@ -104,7 +123,6 @@ function App() {
               />
             }
           />
-
           <Route
             path="/checkout"
             element={
@@ -113,12 +131,12 @@ function App() {
                 cartItem={cartItem}
                 calculateTotal={calculateTotal}
               />
-            } // Pindahkan prop cartItem ke dalam element
+            }
           />
-          <Route path="/crudproduct" element={<CrudProduct />} />
+          <Route path="/admin/*" element={<Dashboard />} />
         </Routes>
-
-        <Footer />
+        {/* Menampilkan footer jika bukan rute admin */}
+        {!isAdminRoute && <Footer />}
       </div>
     </>
   );

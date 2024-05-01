@@ -1,25 +1,31 @@
 // Navbar.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { FaShoppingCart } from "react-icons/fa";
+import { FaShoppingCart, FaUser } from "react-icons/fa";
 import { IoIosLogIn, IoIosClose } from "react-icons/io";
+import { CiLogout } from "react-icons/ci";
 
 function Navbar() {
   const [phoneIsOpen, setPhoneIsOpen] = useState(false);
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setPhoneIsOpen(false);
-      }
+    // Fungsi untuk memeriksa keberadaan token dari local storage atau sesi
+    const checkUserLoggedIn = () => {
+      const token = localStorage.getItem("auth_token"); // Ganti dengan nama yang sesuai
+      setIsUserLoggedIn(!!token); // Set isUserLoggedIn ke true jika token ada, false jika tidak
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    // Panggil fungsi untuk memeriksa status login setiap kali komponen dimuat ulang
+    checkUserLoggedIn();
   }, []);
+
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setPhoneIsOpen(false);
+    }
+  };
 
   const togglePhoneMenu = () => {
     setPhoneIsOpen(!phoneIsOpen);
@@ -27,6 +33,15 @@ function Navbar() {
 
   const closeDropdown = () => {
     setPhoneIsOpen(false);
+  };
+
+  const handleLogout = () => {
+    // Hapus token autentikasi dari penyimpanan lokal
+    localStorage.removeItem("auth_token"); // Ganti dengan nama yang sesuai
+    // Set isUserLoggedIn menjadi false
+    setIsUserLoggedIn(false);
+    // Arahkan pengguna ke halaman login
+    window.location.href = "/login";
   };
 
   return (
@@ -113,24 +128,47 @@ function Navbar() {
                 Products
               </Link>
             </li>
-            <li>
-              <Link
-                to="/cart"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                onClick={closeDropdown}
-              >
-                Cart
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/login"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                onClick={closeDropdown}
-              >
-                Login
-              </Link>
-            </li>
+            {isUserLoggedIn ? ( // Tampilkan tautan Cart dan Logout jika pengguna sudah masuk
+              <>
+                <li>
+                  <Link
+                    to="/cart"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={closeDropdown}
+                  >
+                    Cart
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/profile"
+                    onClick={closeDropdown}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    profile
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
+            ) : (
+              // Jika pengguna belum masuk, tampilkan tautan Login
+              <li>
+                <Link
+                  to="/login"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={closeDropdown}
+                >
+                  Login
+                </Link>
+              </li>
+            )}
           </ul>
         )}
         <ul className="flex gap-4 md:flex hidden">
@@ -140,9 +178,26 @@ function Navbar() {
             </Link>
           </li>
           <li>
-            <Link to="/login" className="hover:text-red duration-200">
-              <IoIosLogIn size={25} />
-            </Link>
+            {isUserLoggedIn ? (
+              // Ganti ikon login menjadi ikon pengguna jika pengguna sudah masuk
+              <>
+                <div className="flex text-center justify-center flex-row">
+                  <Link to="/profile" className="hover:text-red duration-200">
+                    <FaUser size={25} />
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="ml-2 px-2 py-1 rounded-md bg-red-500 text-black hover:bg-red duration-200"
+                  >
+                    <CiLogout size={25} />
+                  </button>
+                </div>
+              </>
+            ) : (
+              <Link to="/login" className="hover:text-red duration-200">
+                <IoIosLogIn size={25} />
+              </Link>
+            )}
           </li>
         </ul>
       </div>

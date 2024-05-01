@@ -3,6 +3,9 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      height: {
+        pepek: "30rem", // Contoh ukuran kustom untuk height
+      },
       colors: {
         red: "#c93535",
         white: "#ffffff",

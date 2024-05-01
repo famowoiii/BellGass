@@ -1,44 +1,140 @@
 import React from "react";
 import { FaRegUser } from "react-icons/fa";
-import { MdOutlineEmail } from "react-icons/md";
+import { MdOutlineEmail, MdPhone } from "react-icons/md";
 import { RiLockPasswordLine } from "react-icons/ri";
+import { AiOutlineHome } from "react-icons/ai"; // Importing an alternative icon for the address field
 
 function RegisterCard({ toLogin }) {
+  const [fullname, setFullname] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [phone, setPhone] = React.useState("");
+  const [address, setAddress] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [error, setError] = React.useState("");
+  const [notCorrect, setNotCorrect] = React.useState(false);
+
+  const [loading, setLoading] = React.useState(false);
+
+  const handleRegister = async () => {
+    try {
+      setLoading(true);
+      // Replace API URL with the appropriate registration URL
+      const response = await fetch("http://localhost:3010/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fullname, email, phone, address, password }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        // Registration successful
+        // Add navigation or action logic after successful registration
+        console.log("Registration successful:", data);
+      } else {
+        // Registration failed
+        setError(data.message || "Registration failed");
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      setError("Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const confirmMessage = (a, b) => {
+    if (a !== b) {
+      return "Password doesnt correct, Please fill again!";
+    }
+  };
   return (
-    <div
-      className={`text-lg  max-w-xs  bg-backdrop-blur-sm bg-white/70 border-2 flex justify-center flex-col border-red rounded-xl p-4`}
-    >
-      <h1 className="text-xl font-bold mb-4">Register Your Account Now!</h1>
+    <div className="max-w-md mx-auto py-12 px-6 bg-white rounded-xl shadow-md overflow-hidden">
+      <h1 className="text-3xl font-bold text-center mb-6">
+        Register Your Account Now!
+      </h1>
       <div className="mb-4">
-        <div className="flex items-center mb-2">
-          <FaRegUser className="mr-2" />
+        <div className="flex items-center border-b border-gray-300 py-2">
+          <FaRegUser className="w-6 h-6 mr-3" />
           <input
             type="text"
-            placeholder="Username"
-            className="bg-transparent placeholder-black text-black w-full"
+            placeholder="Full Name"
+            className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+            value={fullname}
+            onChange={(e) => setFullname(e.target.value)}
           />
         </div>
-        <div className="flex items-center mb-2">
-          <MdOutlineEmail className="mr-2" />
+        <div className="flex items-center border-b border-gray-300 py-2">
+          <MdOutlineEmail className="w-6 h-6 mr-3" />
           <input
             type="email"
             placeholder="Email"
-            className="bg-transparent placeholder-black text-black w-full"
+            className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-        <div className="flex items-center">
-          <RiLockPasswordLine className="mr-2" />
+        <div className="flex items-center border-b border-gray-300 py-2">
+          <MdPhone className="w-6 h-6 mr-3" />
+          <input
+            type="text"
+            placeholder="Phone Number"
+            className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center border-b border-gray-300 py-2">
+          <AiOutlineHome className="w-6 h-6 mr-3" />{" "}
+          {/* Using the AiOutlineHome icon for the address field */}
+          <input
+            type="text"
+            placeholder="Address"
+            className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center border-b border-gray-300 py-2">
+          <RiLockPasswordLine className="w-6 h-6 mr-3" />
           <input
             type="password"
             placeholder="Password"
-            className="bg-transparent placeholder-black text-black w-full"
+            className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center border-b border-gray-300 py-2">
+          <RiLockPasswordLine className="w-6 h-6 mr-3" />
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
           />
         </div>
       </div>
-      <button className="bg-red text-center hover:scale-105 hover:text-white duration-200 rounded-xl px-2 p-1">
-        Sign up
-      </button>
-      <button onClick={() => toLogin()}>Login!</button>
+      {error && <div className="text-red-500 mb-4">{error}</div>}
+      <div className="text-red">
+        {confirmMessage(confirmPassword, password)}
+      </div>
+
+      <div className="flex justify-center">
+        <button
+          className="bg-red hover:bg-red text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          onClick={handleRegister}
+          disabled={loading}
+        >
+          {loading ? "Signing up..." : "Sign up"}
+        </button>
+      </div>
+      <div className="text-center mt-4">
+        <button onClick={() => toLogin()} className="text-red hover:text-black">
+          Already have an account? Login here!
+        </button>
+      </div>
     </div>
   );
 }

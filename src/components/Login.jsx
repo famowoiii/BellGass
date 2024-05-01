@@ -1,22 +1,20 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { FaRegUser } from "react-icons/fa";
 import { MdOutlineEmail } from "react-icons/md";
 import { RiLockPasswordLine } from "react-icons/ri";
-import axios from "axios";
-import { useState } from "react";
 
 function Login({ registerHandler }) {
-  const [data, setData] = useState({ username: "", password: "" });
-  const [error, setError] = useState("");
+  const [data, setData] = React.useState({ username: "", password: "" });
+  const [error, setError] = React.useState("");
 
   const handleChange = ({ currentTarget: input }) => {
     setData({ ...data, [input.name]: input.value });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = ""; // Masukkan URL untuk endpoint login
+      const url = "http://localhost:3010/api/auth/login"; // Masukkan URL untuk endpoint login
       const { data: res } = await axios.post(url, data);
       localStorage.setItem("token", res.data);
       window.location = "/home";
@@ -30,50 +28,58 @@ function Login({ registerHandler }) {
       }
     }
   };
+
   return (
-    <div
-      className={`text-lg max-w-xs  bg-backdrop-blur-sm bg-white/70 border-2 flex justify-center flex-col border-red rounded-xl 
-         p-4`}
-    >
-      <h1 className="text-xl font-bold mb-4">Sign in!</h1>
-      <div className="mb-4">
-        <form onSubmit={handleSubmit}>
-          <div className="flex items-center mb-2">
-            <FaRegUser className="mr-2" />
+    <div className="max-w-md mx-auto py-12 px-6 bg-white rounded-xl shadow-md overflow-hidden">
+      <h1 className="text-3xl font-bold text-center mb-6">Sign in!</h1>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <div className="flex items-center border-b border-gray-300 py-2">
+            <FaRegUser className="w-6 h-6 mr-3" />
             <input
               onChange={handleChange}
               required
               value={data.username}
-              name="username" // tambahkan name attribute
+              name="username"
               type="text"
+              autoComplete="current-password"
               placeholder="Username"
-              className="bg-transparent placeholder-black text-black w-full"
+              className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
             />
           </div>
-
-          <div className="flex items-center">
-            <RiLockPasswordLine className="mr-2" />
+        </div>
+        <div className="mb-4">
+          <div className="flex items-center border-b border-gray-300 py-2">
+            <RiLockPasswordLine className="w-6 h-6 mr-3" />
             <input
               type="password"
               onChange={handleChange}
               required
+              autoComplete="current-password"
               value={data.password}
-              name="password" // tambahkan name attribute
+              name="password"
               placeholder="Password"
-              className="bg-transparent placeholder-black text-black w-full"
+              className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
             />
           </div>
+        </div>
+        <div className="flex justify-center">
           <button
             type="submit"
-            className="bg-red text-center hover:scale-105 hover:text-white duration-200 rounded-xl px-2 p-1"
+            className="bg-red hover:bg-red text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             Login
           </button>
-        </form>
+        </div>
+      </form>
+      <div className="text-center mt-4">
+        <button
+          onClick={() => registerHandler()}
+          className="text-red hover:text-red"
+        >
+          Don't have an account yet? Register here!
+        </button>
       </div>
-      <button onClick={() => registerHandler()}>
-        Dont have any account yet?
-      </button>
     </div>
   );
 }

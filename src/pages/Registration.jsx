@@ -16,7 +16,7 @@ function Registration() {
   };
   return (
     <div className="h-screen">
-      <div className="  flex justify-center bg-homebgsc bg-cover bg-fixed h-full align-middle bg-red items-center ">
+      <div className="  flex justify-center bg-white bg-cover bg-fixed h-full align-middle  items-center ">
         {regIsTrue && <RegisterCard toLogin={toLogin} />}
         {!regIsTrue && (
           <Login registerHandler={registerHandler} regIsTrue={regIsTrue} />

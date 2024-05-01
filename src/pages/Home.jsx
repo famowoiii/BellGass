@@ -15,7 +15,7 @@ function Home() {
 
   return (
     <div>
-      <div className="bg-cover bg-fixed bg-center h-screen w-full bg-homebg shadow-xl mb-3 flex justify-center items-center ">
+      <div className="bg-cover  bg-center h-pepek w-full bg-homebg shadow-xl mb-3 flex justify-center items-center ">
         <div className="text-white w-full h-full bg-white font-signika lg:text-6xl phone:text-4xl backdrop-blur-sm bg-white/10 flex items-center justify-center">
           Welcome to Bell Gass
         </div>
@@ -73,19 +73,21 @@ function Home() {
             )}
           </button>
           {isProductsOpen && (
-            <div className="grid lg:grid-cols-4 sm:grid-cols-2 gap-7 lg:mx-32 phone:mx-24  py-7 transition-all">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6 px-4 md:px-10 py-6">
               {data.map((item) => (
                 <Link
                   to={`details/${item.id}`}
                   key={item.id}
-                  className="lg:max-w-md sm:w-sm hover:scale-105 hover:bg-gray-200 duration-200 border-2 border-rose-100 drop-shadow-lg hover:border-red p-2 rounded-lg"
+                  className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition duration-300"
                 >
                   <img
                     src={item.download_url}
-                    alt=""
-                    className="w-full rounded-md"
+                    alt={item.author}
+                    className="w-full h-48 object-cover"
                   />
-                  <div>{item.author}</div>
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold">{item.author}</h3>
+                  </div>
                 </Link>
               ))}
             </div>
