@@ -1,13 +1,17 @@
-import React, { useState } from "react";
-import { FaTrashAlt, FaEdit, FaSave, FaTimes, FaPlus } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { FaPlus } from "react-icons/fa";
 
 function ProductForm({ onAddProduct }) {
   const [newProduct, setNewProduct] = useState({
     name: "",
     description: "",
+    category: "",
+    type: "2kg",
     price: 0,
     stock: 0,
-    category: "refill", // Default category: refill
+    refill: false,
+    image: null,
   });
 
   const handleInputChange = (e) => {
@@ -15,262 +19,238 @@ function ProductForm({ onAddProduct }) {
     setNewProduct({ ...newProduct, [name]: value });
   };
 
-  const handleAddProduct = () => {
-    onAddProduct(newProduct);
-    setNewProduct({
-      name: "",
-      description: "",
-      price: 0,
-      stock: 0,
-      category: "refill", // Reset category to default: refill
-    });
+  const handleFileChange = (e) => {
+    setNewProduct({ ...newProduct, image: e.target.files[0] });
+  };
+
+  const handleAddProduct = async () => {
+    const auth_token = localStorage.getItem("auth_token");
+    const authToken = JSON.parse(auth_token);
+    const token = authToken.token;
+
+    if (!token) {
+      console.error("auth_token tidak ditemukan");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", newProduct.name);
+    formData.append("description", newProduct.description);
+    formData.append("category", newProduct.category);
+    formData.append("type", newProduct.type);
+    formData.append("price", newProduct.price);
+    formData.append("stock", newProduct.stock);
+    formData.append("refill", newProduct.refill);
+    if (newProduct.image) {
+      formData.append("image", newProduct.image);
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3010/admin/item",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      onAddProduct(response.data);
+      setNewProduct({
+        name: "",
+        description: "",
+        category: "",
+        type: "2kg",
+        price: 0,
+        stock: 0,
+        refill: false,
+        image: null,
+      });
+    } catch (error) {
+      console.error("Error adding product:", error.message);
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+        console.error("Error response status:", error.response.status);
+        console.error("Error response headers:", error.response.headers);
+      }
+    }
   };
 
   return (
-    <div className="mb-8 flex flex-row">
-      <input
-        type="text"
-        name="name"
-        placeholder="Product Name"
-        value={newProduct.name}
-        onChange={handleInputChange}
-        className="border rounded py-2 px-4 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <input
-        type="text"
-        name="description"
-        placeholder="Product Description"
-        value={newProduct.description}
-        onChange={handleInputChange}
-        className="border rounded py-2 px-4 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <input
-        type="number"
-        name="price"
-        placeholder="Product Price"
-        value={newProduct.price}
-        onChange={handleInputChange}
-        className="border rounded py-2 px-4 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <input
-        type="number"
-        name="stock"
-        placeholder="Product Stock"
-        value={newProduct.stock}
-        onChange={handleInputChange}
-        className="border rounded py-2 px-4 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <select
-        name="category"
-        value={newProduct.category}
-        onChange={handleInputChange}
-        className="border rounded py-2 px-4 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        <option value="refill">Refill</option>
-        <option value="pickup">Pickup</option>
-      </select>
+    <form className="mb-8 p-4 bg-white rounded shadow-md">
+      <h2 className="text-xl font-bold mb-4">Add New Product</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-gray-700">Product Name</label>
+          <input
+            type="text"
+            name="name"
+            value={newProduct.name}
+            onChange={handleInputChange}
+            className="w-full border rounded py-2 px-4"
+          />
+        </div>
+        <div>
+          <label className="block text-gray-700">Description</label>
+          <textarea
+            name="description"
+            value={newProduct.description}
+            onChange={handleInputChange}
+            className="w-full border rounded py-2 px-4"
+          />
+        </div>
+        <div>
+          <label className="block text-gray-700">Category</label>
+          <input
+            type="text"
+            name="category"
+            value={newProduct.category}
+            onChange={handleInputChange}
+            className="w-full border rounded py-2 px-4"
+          />
+        </div>
+        <div>
+          <label className="block text-gray-700">Type</label>
+          <select
+            name="type"
+            value={newProduct.type}
+            onChange={handleInputChange}
+            className="w-full border rounded py-2 px-4"
+          >
+            <option value="1kg">1kg</option>
+            <option value="2kg">2kg</option>
+            <option value="3kg">3kg</option>
+            <option value="4kg">4kg</option>
+            <option value="9kg">9kg</option>
+            <option value="18kg">18kg</option>
+            <option value="45kg">45kg</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-gray-700">Price</label>
+          <input
+            type="number"
+            name="price"
+            value={newProduct.price}
+            onChange={handleInputChange}
+            className="w-full border rounded py-2 px-4"
+          />
+        </div>
+        <div>
+          <label className="block text-gray-700">Stock</label>
+          <input
+            type="number"
+            name="stock"
+            value={newProduct.stock}
+            onChange={handleInputChange}
+            className="w-full border rounded py-2 px-4"
+          />
+        </div>
+        <div>
+          <label className="block text-gray-700">Refill</label>
+          <select
+            name="refill"
+            value={newProduct.refill}
+            onChange={handleInputChange}
+            className="w-full border rounded py-2 px-4"
+          >
+            <option value={true}>Yes</option>
+            <option value={false}>No</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-gray-700">Image</label>
+          <input
+            type="file"
+            name="image"
+            onChange={handleFileChange}
+            className="w-full border rounded py-2 px-4"
+          />
+        </div>
+      </div>
       <button
+        type="button"
         onClick={handleAddProduct}
-        className="bg-blue-500 text-white py-2 px-4  justify-center flex-row flex  rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
       >
         <FaPlus className="mr-1" /> Add Product
       </button>
-    </div>
+    </form>
   );
 }
 
+// Other imports...
+
 function ProductDashboard() {
-  const [products, setProducts] = useState([
-    {
-      id: "1",
-      name: "Product 1",
-      description: "Description of Product 1",
-      price: 10,
-      stock: 5,
-      category: "refill",
-      editing: false,
-      editedName: "Product 1",
-      editedDescription: "Description of Product 1",
-      editedPrice: 10,
-      editedStock: 5,
-    },
-    {
-      id: "2",
-      name: "Product 2",
-      description: "Description of Product 2",
-      price: 20,
-      stock: 10,
-      category: "pickup",
-      editing: false,
-      editedName: "Product 2",
-      editedDescription: "Description of Product 2",
-      editedPrice: 20,
-      editedStock: 10,
-    },
-    {
-      id: "3",
-      name: "Product 3",
-      description: "Description of Product 3",
-      price: 30,
-      stock: 15,
-      category: "refill",
-      editing: false,
-      editedName: "Product 3",
-      editedDescription: "Description of Product 3",
-      editedPrice: 30,
-      editedStock: 15,
-    },
-  ]);
+  const [products, setProducts] = useState([]);
 
-  const handleDelete = (id) => {
-    setProducts(products.filter((product) => product.id !== id));
-  };
+  useEffect(() => {
+    const auth_token = localStorage.getItem("auth_token");
+    const authToken = JSON.parse(auth_token);
+    const token = authToken.token;
 
-  const handleEdit = (id) => {
-    setProducts(
-      products.map((product) =>
-        product.id === id
-          ? { ...product, editing: true }
-          : { ...product, editing: false }
-      )
-    );
-  };
-
-  const handleSave = (id) => {
-    setProducts(
-      products.map((product) =>
-        product.id === id
-          ? {
-              ...product,
-              name: product.editedName,
-              description: product.editedDescription,
-              price: product.editedPrice,
-              stock: product.editedStock,
-              editing: false,
-            }
-          : product
-      )
-    );
-  };
-
-  const handleCancel = (id) => {
-    setProducts(
-      products.map((product) =>
-        product.id === id
-          ? {
-              ...product,
-              editedName: product.name,
-              editedDescription: product.description,
-              editedPrice: product.price,
-              editedStock: product.stock,
-              editing: false,
-            }
-          : product
-      )
-    );
-  };
-
-  const handleChange = (id, e) => {
-    const { name, value } = e.target;
-    setProducts(
-      products.map((product) =>
-        product.id === id ? { ...product, [`edited${name}`]: value } : product
-      )
-    );
-  };
-
-  const handleAddProduct = (newProduct) => {
-    const id = (Math.random() * 100).toString(); // Generate a unique ID
-    setProducts([
-      ...products,
-      {
-        id,
-        ...newProduct,
-        editing: false,
-        editedName: newProduct.name,
-        editedDescription: newProduct.description,
-        editedPrice: newProduct.price,
-        editedStock: newProduct.stock,
-      },
-    ]);
-  };
+    axios
+      .get("http://localhost:3010/admin/item", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        const data = response.data.data;
+        setProducts(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error.message);
+        if (error.response) {
+          console.error("Error response data:", error.response.data);
+          console.error("Error response status:", error.response.status);
+          console.error("Error response headers:", error.response.headers);
+        }
+      });
+  }, []);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Product Dashboard</h1>
-      <ProductForm onAddProduct={handleAddProduct} />
-      <ul className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {products.map((product) => (
-          <li key={product.id} className="border rounded p-4">
-            {product.editing ? (
-              <div>
-                <input
-                  type="text"
-                  name="Name"
-                  value={product.editedName}
-                  onChange={(e) => handleChange(product.id, e)}
-                  className="border rounded py-2 px-4 mb-2 w-full"
-                />
-                <input
-                  type="text"
-                  name="Description"
-                  value={product.editedDescription}
-                  onChange={(e) => handleChange(product.id, e)}
-                  className="border rounded py-2 px-4 mb-2 w-full"
-                />
-                <input
-                  type="number"
-                  name="Price"
-                  value={product.editedPrice}
-                  onChange={(e) => handleChange(product.id, e)}
-                  className="border rounded py-2 px-4 mb-2 w-full"
-                />
-                <input
-                  type="number"
-                  name="Stock"
-                  value={product.editedStock}
-                  onChange={(e) => handleChange(product.id, e)}
-                  className="border rounded py-2 px-4 mb-2 w-full"
-                />
-                <button
-                  onClick={() => handleSave(product.id)}
-                  className="bg-green-500 text-white py-2 px-4 rounded mr-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  <FaSave className="mr-1" /> Save
-                </button>
-                <button
-                  onClick={() => handleCancel(product.id)}
-                  className="bg-gray-500 text-white py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
-                >
-                  <FaTimes className="mr-1" /> Cancel
-                </button>
-              </div>
-            ) : (
-              <div>
-                <h2 className="text-xl font-bold mb-2">{product.name}</h2>
-                <p className="text-gray-600 mb-2">{product.description}</p>
-                <p className="text-gray-800 font-bold">${product.price}</p>
-                <p className="text-gray-600">Stock: {product.stock}</p>
-                <p className="text-gray-600">Category: {product.category}</p>
-                <div className="flex mt-4">
-                  <button
-                    onClick={() => handleDelete(product.id)}
-                    className="flex items-center bg-red text-white py-2 px-4 mr-2 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
-                  >
-                    <FaTrashAlt className="mr-1" /> Delete
-                  </button>
-                  <button
-                    onClick={() => handleEdit(product.id)}
-                    className="flex items-center bg-yellow-500 text-white py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                  >
-                    <FaEdit className="mr-1" /> Edit
-                  </button>
-                </div>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-8">Product Dashboard</h1>
+      <ProductForm
+        onAddProduct={(newProduct) => setProducts([...products, newProduct])}
+      />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {products.length > 0 ? (
+          products.map((product) => (
+            <div key={product.id} className="p-4 bg-white rounded shadow-md">
+              <p className="text-gray-700 mb-2">{product.description}</p>
+
+              {product.itemTypes &&
+                product.itemTypes.map((itemType) => (
+                  <div key={itemType.id} className="mb-4">
+                    <p className="text-gray-700 mb-2">Type: {itemType.type}</p>
+                    <p className="text-gray-700 mb-2">
+                      Price: {itemType.price}
+                    </p>
+                    <p className="text-gray-700 mb-2">
+                      Stock: {itemType.stock}
+                    </p>
+                    <p className="text-gray-700 mb-2">
+                      Refill: {itemType.refill ? "Yes" : "No"}
+                    </p>
+                    {itemType.url && (
+                      <img
+                        key={itemType.url} // Add unique key here
+                        src={`http://localhost:3010/${itemType.url}`}
+                        alt={product.name}
+                        className="w-full h-48 object-cover mb-2"
+                      />
+                    )}
+                  </div>
+                ))}
+            </div>
+          ))
+        ) : (
+          <p key="no-products">No products available.</p> // Add a key here
+        )}
+      </div>
     </div>
   );
 }

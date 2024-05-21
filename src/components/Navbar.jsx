@@ -50,7 +50,7 @@ function Navbar() {
         <div className="flex flex-col">
           <div>BELL GASS</div>
         </div>
-        <ul className="list-none border-solid flex justify-between border-sky-500 gap-6 px-2 md:flex hidden">
+        <ul className="list-none border-solid flex justify-between   gap-6 px-2 md:flex hidden">
           <li>
             <Link to="/" className="hover:text-red duration-200">
               Home Page
@@ -99,7 +99,7 @@ function Navbar() {
         {phoneIsOpen && (
           <ul
             ref={dropdownRef}
-            className="md:hidden w-full absolute z-50 bg-white  left-0 drop-shadow-2xl rounded-lg"
+            className="md:hidden w-full absolute z-50 bg-white  gap-3 left-0 drop-shadow-2xl rounded-lg"
           >
             <li>
               <Link
@@ -141,6 +141,15 @@ function Navbar() {
                 </li>
                 <li>
                   <Link
+                    to="/orderstatus"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={closeDropdown}
+                  >
+                    Order
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     to="/profile"
                     onClick={closeDropdown}
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -171,7 +180,7 @@ function Navbar() {
             )}
           </ul>
         )}
-        <ul className="flex gap-4 md:flex hidden">
+        <ul className="flex gap-6 md:flex hidden">
           <li>
             <Link to="/cart" className="hover:text-red duration-200">
               <FaShoppingCart size={25} />
@@ -181,9 +190,15 @@ function Navbar() {
             {isUserLoggedIn ? (
               // Ganti ikon login menjadi ikon pengguna jika pengguna sudah masuk
               <>
-                <div className="flex text-center justify-center flex-row">
+                <div className="flex text-center gap-4 justify-center flex-row">
                   <Link to="/profile" className="hover:text-red duration-200">
                     <FaUser size={25} />
+                  </Link>
+                  <Link
+                    to="/orderstatus"
+                    className="hover:text-red duration-200"
+                  >
+                    Order
                   </Link>
                   <button
                     onClick={handleLogout}

@@ -1,7 +1,7 @@
 import React from "react";
 import { FaRegUser } from "react-icons/fa";
-import { MdOutlineEmail } from "react-icons/md";
 import { RiLockPasswordLine } from "react-icons/ri";
+import axios from "axios";
 
 function Login({ registerHandler }) {
   const [data, setData] = React.useState({ username: "", password: "" });
@@ -14,10 +14,11 @@ function Login({ registerHandler }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = "http://localhost:3010/api/auth/login"; // Masukkan URL untuk endpoint login
+      const url = "http://localhost:3010/auth/login"; // Masukkan URL untuk endpoint login
       const { data: res } = await axios.post(url, data);
-      localStorage.setItem("token", res.data);
-      window.location = "/home";
+      localStorage.setItem("auth_token", JSON.stringify(res.data));
+
+      window.location = "/";
     } catch (error) {
       if (
         error.response &&

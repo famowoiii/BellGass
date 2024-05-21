@@ -1,10 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function CheckOut({ cartItem, countItems, calculateTotal }) {
   const [showModal, setShowModal] = useState(false);
   const [address, setAddress] = useState("");
   const [deliveryOption, setDeliveryOption] = useState("");
+  const [isDeliveryAvailable, setIsDeliveryAvailable] = useState(true);
+  const [hasMixedRefillItems, setHasMixedRefillItems] = useState(false);
+
+  useEffect(() => {
+    const hasRefillItem = cartItem.some((item) =>
+      item.itemTypes.some((type) => type.refill === true)
+    );
+    setIsDeliveryAvailable(!hasRefillItem);
+
+    const refillValues = cartItem.map((item) => item.itemTypes[0].refill);
+    const hasMixedItems = new Set(refillValues).size > 1;
+    setHasMixedRefillItems(hasMixedItems);
+  }, [cartItem]);
 
   const handleAddressChange = (e) => {
     setAddress(e.target.value);
@@ -15,10 +28,20 @@ function CheckOut({ cartItem, countItems, calculateTotal }) {
   };
 
   const handlePayment = () => {
-    // Tampilkan modal
+    if (hasMixedRefillItems) {
+      alert(
+        "Your cart contains both refill and non-refill items. Please remove one type to proceed."
+      );
+      return;
+    }
+
+    if (deliveryOption === "" || address === "") {
+      alert("Please fill in the address and select a delivery option.");
+      return;
+    }
+
     setShowModal(true);
 
-    // Kirim pesanan ke URL yang ditentukan
     const orderData = {
       address: address,
       deliveryOption: deliveryOption,
@@ -26,11 +49,10 @@ function CheckOut({ cartItem, countItems, calculateTotal }) {
       total: calculateTotal(),
     };
 
-    // Kirim data pesanan menggunakan Axios atau fetch
     axios
       .post("URL_pesanan_API", orderData)
       .then((response) => {
-        console.log("Pesanan berhasil dikirim:", response.data);
+        console.log("Order successfully placed:", response.data);
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -40,64 +62,82 @@ function CheckOut({ cartItem, countItems, calculateTotal }) {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-full md:mx-32 bg-white rounded-lg shadow-md overflow-hidden flex flex-col md:flex-row">
-        {/* Kolom kiri - Produk yang dipilih */}
+        {/* Left column - Selected products */}
         <div className="w-full md:w-1/2 p-4 shadow-lg">
           <h2 className="text-2xl font-semibold mb-4">Your Cart</h2>
           {cartItem.map((item, index) => (
-            <div key={item.id} className="flex items-center mb-4">
+            <div key={`${item.id}-${index}`} className="flex items-center mb-4">
               <img
-                src={item.download_url}
+                src={item.itemTypes[0]?.url || "default_image_url.jpg"}
                 alt=""
                 className="w-16 h-auto mr-4"
               />
               <div>
-                <h3 className="font-semibold">{item.author}</h3>
+                <h3 className="font-semibold">{item.name}</h3>
                 <p className="text-sm text-gray-600">
                   Quantity: {countItems[index]}
                 </p>
-                <p className="text-sm text-gray-600">Price: $10</p>{" "}
-                {/* Ganti dengan harga sesuai */}
+                <p className="text-sm text-gray-600">${item.price}</p>
               </div>
             </div>
           ))}
           <hr className="my-4" />
           <div className="text-center mb-4">
             Total Price: $
-            <span className="font-semibold text-red-600">
-              {calculateTotal()}
-            </span>
+            <span className="font-semibold text-red">{calculateTotal()}</span>
           </div>
         </div>
-        {/* Kolom kanan - Alamat dan pilihan delivery/pickup */}
+        {/* Right column - Address and delivery/pickup option */}
         <div className="w-full md:w-1/2 p-4">
           <h2 className="text-2xl font-semibold mb-4">Delivery Information</h2>
-          <div className="mb-4">
-            <label htmlFor="address" className="block mb-2">
-              Delivery Address:
-            </label>
-            <input
-              type="text"
-              id="address"
-              value={address}
-              onChange={handleAddressChange}
-              className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:border-red-500"
-              placeholder="Enter your delivery address"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-2">Delivery Option:</label>
-            <select
-              value={deliveryOption}
-              onChange={handleDeliveryOptionChange}
-              className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:border-red-500"
-            >
-              <option value="delivery">Delivery</option>
-              <option value="pickup">Pick Up</option>
-            </select>
-          </div>
+          {hasMixedRefillItems ? (
+            <div className="mb-4 text-red">
+              Your cart contains both refill and non-refill items. Please remove
+              one type to proceed.
+            </div>
+          ) : (
+            <>
+              <div className="mb-4">
+                <label htmlFor="address" className="block mb-2">
+                  Delivery Address:
+                </label>
+                <input
+                  type="text"
+                  id="address"
+                  value={address}
+                  onChange={handleAddressChange}
+                  className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:border-red-500"
+                  placeholder="Enter your delivery address"
+                  disabled={hasMixedRefillItems}
+                />
+              </div>
+              {isDeliveryAvailable && (
+                <div className="mb-4">
+                  <label className="block mb-2">Delivery Option:</label>
+                  <select
+                    value={deliveryOption}
+                    onChange={handleDeliveryOptionChange}
+                    className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:border-red-500"
+                    disabled={hasMixedRefillItems}
+                  >
+                    <option value="">Select an option</option>
+                    <option value="delivery">Delivery</option>
+                    <option value="pickup">Pick Up</option>
+                  </select>
+                </div>
+              )}
+              {!isDeliveryAvailable && (
+                <div className="mb-4 text-red">
+                  Sorry, delivery is not available for items with refill
+                  service.
+                </div>
+              )}
+            </>
+          )}
           <button
             onClick={handlePayment}
             className="bg-slate-400 text-black rounded-lg px-5 py-2 w-full hover:bg-red hover:text-white border-2 transition duration-200"
+            disabled={hasMixedRefillItems}
           >
             Proceed to Payment
           </button>
@@ -117,7 +157,7 @@ function CheckOut({ cartItem, countItems, calculateTotal }) {
             </p>
             <button
               onClick={() => setShowModal(false)}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+              className="bg-red text-white px-4 py-2 rounded-lg hover:bg-red-600"
             >
               Close
             </button>

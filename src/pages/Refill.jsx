@@ -1,57 +1,96 @@
-import React, { useState } from "react";
-import useFetch from "../hooks/Fetch";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-function Products({ setCartItem, cartItem, addToCart }) {
-  const { data, loading } = useFetch(
-    "https://picsum.photos/v2/list?page=1&limit=1" // Mengambil 6 gambar sekaligus
-  );
-
-  const [selectedType, setSelectedType] = useState(1);
+function Refill({ addToCart }) {
+  const [products, setProducts] = useState([]);
+  const [selectedType, setSelectedType] = useState({});
   const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const handleTypeChange = (event) => {
-    setSelectedType(parseInt(event.target.value));
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:3010/guest/item");
+        const refillProducts = response.data.data.filter((item) =>
+          item.itemTypes.some((type) => type.refill)
+        );
+        setProducts(refillProducts);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching products:", error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleTypeChange = (itemId, type) => {
+    setSelectedType((prev) => ({ ...prev, [itemId]: type }));
   };
 
   const handleAddToCart = (item) => {
-    addToCart({ ...item, type: selectedType });
+    const selectedItemType = selectedType[item.id];
+    if (!selectedItemType) {
+      setModalMessage("Please select a type");
+      setShowModal(true);
+      return;
+    }
+    const type = item.itemTypes.find((type) => type.type === selectedItemType);
+    addToCart({
+      ...item,
+      type: selectedItemType,
+      price: type.price,
+      quantity: 0,
+    });
+    setModalMessage("Item Added to Cart!");
     setShowModal(true);
   };
 
   return (
     <div className="container mx-auto py-8">
-      <h2 className="text-3xl font-bold text-center mb-6">Shop Our Products</h2>
+      <h2 className="text-3xl font-bold text-center mb-6">Refill Products</h2>
       <div className="grid grid-cols-1 gap-6">
         {loading ? (
           <div className="text-center">Loading... please wait</div>
         ) : (
-          data.map((item) => (
-            <div key={item.id} className="bg-white rounded-lg p-6 shadow-md">
+          products.map((item) => (
+            <div
+              key={item.id}
+              className="bg-white rounded-lg p-6 shadow-md flex flex-col md:flex-row gap-10"
+            >
               <img
-                src={item.download_url}
-                alt=""
-                className="w-full h-64 object-cover mb-4"
+                src={item.itemTypes[0]?.url || "default_image_url.jpg"}
+                alt={item.name}
+                className="w-1/6 h-auto object-cover"
               />
-              <h3 className="text-xl font-semibold mb-2">{item.author}</h3>
-              <p className="text-gray-700 mb-4">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              </p>
-              <div className="flex items-center">
-                <select
-                  value={selectedType}
-                  onChange={handleTypeChange}
-                  className="border rounded-md py-1 px-2 mr-2"
-                >
-                  <option value={1}>Type 1</option>
-                  <option value={2}>Type 2</option>
-                  <option value={3}>Type 3</option>
-                </select>
-                <button
-                  onClick={() => handleAddToCart(item)}
-                  className="bg-red text-white py-1 px-4 rounded-md hover:bg-red transition duration-200"
-                >
-                  Add to Cart
-                </button>
+              <div>
+                <h3 className="text-xl font-semibold mb-2">{item.name}</h3>
+                <p className="text-gray-700 mb-4">{item.description}</p>
+                <div className="flex flex-col md:flex-row items-center">
+                  <div className="flex gap-2">
+                    {item.itemTypes.map((type) => (
+                      <button
+                        key={type.id}
+                        onClick={() => handleTypeChange(item.id, type.type)}
+                        className={`border rounded-md py-1 px-2 focus:outline-none ${
+                          selectedType[item.id] === type.type
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-200 text-gray-700"
+                        }`}
+                      >
+                        {type.type}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => handleAddToCart(item)}
+                    className="bg-red text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-200 ml-2"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
               </div>
             </div>
           ))
@@ -60,10 +99,10 @@ function Products({ setCartItem, cartItem, addToCart }) {
       {showModal && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-50">
           <div className="bg-white rounded-lg p-8">
-            <p className="text-lg font-semibold mb-4">Item added to cart!</p>
+            <p className="text-lg font-semibold mb-4">{modalMessage}</p>
             <button
               onClick={() => setShowModal(false)}
-              className="bg-red text-white py-2 px-4 rounded-md hover:bg-red transition duration-200"
+              className="bg-red text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-200"
             >
               Close
             </button>
@@ -74,4 +113,4 @@ function Products({ setCartItem, cartItem, addToCart }) {
   );
 }
 
-export default Products;
+export default Refill;

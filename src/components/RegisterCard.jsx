@@ -6,26 +6,29 @@ import { AiOutlineHome } from "react-icons/ai"; // Importing an alternative icon
 
 function RegisterCard({ toLogin }) {
   const [fullname, setFullname] = React.useState("");
+  const [username, setUsername] = React.useState("");
   const [email, setEmail] = React.useState("");
-  const [phone, setPhone] = React.useState("");
-  const [address, setAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [repeat_password, setRepeatPassword] = React.useState("");
   const [error, setError] = React.useState("");
-  const [notCorrect, setNotCorrect] = React.useState(false);
-
   const [loading, setLoading] = React.useState(false);
 
   const handleRegister = async () => {
     try {
       setLoading(true);
       // Replace API URL with the appropriate registration URL
-      const response = await fetch("http://localhost:3010/api/auth/register", {
+      const response = await fetch("http://localhost:3010/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ fullname, email, phone, address, password }),
+        body: JSON.stringify({
+          fullname,
+          username,
+          email,
+          password,
+          repeat_password,
+        }),
       });
       const data = await response.json();
       if (response.ok) {
@@ -43,11 +46,13 @@ function RegisterCard({ toLogin }) {
       setLoading(false);
     }
   };
-  const confirmMessage = (a, b) => {
-    if (a !== b) {
-      return "Password doesnt correct, Please fill again!";
+
+  const confirmMessage = (password, repeatPassword) => {
+    if (password !== repeatPassword) {
+      return "Password doesn't match, please fill it again!";
     }
   };
+
   return (
     <div className="max-w-md mx-auto py-12 px-6 bg-white rounded-xl shadow-md overflow-hidden">
       <h1 className="text-3xl font-bold text-center mb-6">
@@ -65,6 +70,16 @@ function RegisterCard({ toLogin }) {
           />
         </div>
         <div className="flex items-center border-b border-gray-300 py-2">
+          <FaRegUser className="w-6 h-6 mr-3" />
+          <input
+            type="text"
+            placeholder="Username"
+            className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center border-b border-gray-300 py-2">
           <MdOutlineEmail className="w-6 h-6 mr-3" />
           <input
             type="email"
@@ -72,27 +87,6 @@ function RegisterCard({ toLogin }) {
             className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="flex items-center border-b border-gray-300 py-2">
-          <MdPhone className="w-6 h-6 mr-3" />
-          <input
-            type="text"
-            placeholder="Phone Number"
-            className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
-        </div>
-        <div className="flex items-center border-b border-gray-300 py-2">
-          <AiOutlineHome className="w-6 h-6 mr-3" />{" "}
-          {/* Using the AiOutlineHome icon for the address field */}
-          <input
-            type="text"
-            placeholder="Address"
-            className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
           />
         </div>
         <div className="flex items-center border-b border-gray-300 py-2">
@@ -109,16 +103,16 @@ function RegisterCard({ toLogin }) {
           <RiLockPasswordLine className="w-6 h-6 mr-3" />
           <input
             type="password"
-            placeholder="Confirm Password"
+            placeholder="Repeat Password"
             className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            value={repeat_password}
+            onChange={(e) => setRepeatPassword(e.target.value)}
           />
         </div>
       </div>
-      {error && <div className="text-red-500 mb-4">{error}</div>}
+      {error && <div className="text-red mb-4">{error}</div>}
       <div className="text-red">
-        {confirmMessage(confirmPassword, password)}
+        {confirmMessage(password, repeat_password)}
       </div>
 
       <div className="flex justify-center">
@@ -131,7 +125,10 @@ function RegisterCard({ toLogin }) {
         </button>
       </div>
       <div className="text-center mt-4">
-        <button onClick={() => toLogin()} className="text-red hover:text-black">
+        <button
+          onClick={() => toLogin()}
+          className="text-red-500 hover:text-black"
+        >
           Already have an account? Login here!
         </button>
       </div>
