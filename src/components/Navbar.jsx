@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { FaShoppingCart, FaUser } from "react-icons/fa";
 import { IoIosLogIn, IoIosClose } from "react-icons/io";
 import { CiLogout } from "react-icons/ci";
-
+// import { AiFillProduct } from "react-icons/ai";
 function Navbar() {
   const [phoneIsOpen, setPhoneIsOpen] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);

@@ -1,13 +1,25 @@
-import React from "react";
-import useFetch from "../hooks/Fetch";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Link } from "react-router-dom";
 import { IoIosArrowDropdownCircle, IoIosArrowDropup } from "react-icons/io";
 
 function Home() {
-  const { data, loading } = useFetch(
-    "https://picsum.photos/v2/list?page=1&limit=10"
-  );
-  const [isProductsOpen, setProductsOpen] = React.useState(false);
+  const [products, setProducts] = useState([]);
+  const [isProductsOpen, setProductsOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:3010/guest/item");
+        const data = response.data.data;
+        setProducts(data);
+      } catch (error) {
+        console.error("Error fetching products:", error.message);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const toggleProducts = () => {
     setProductsOpen(!isProductsOpen);
@@ -15,8 +27,8 @@ function Home() {
 
   return (
     <div>
-      <div className="bg-cover  bg-center h-pepek w-full bg-homebg shadow-xl mb-3 flex justify-center items-center ">
-        <div className="text-white w-full h-full bg-white font-signika lg:text-6xl phone:text-4xl backdrop-blur-sm bg-white/10 flex items-center justify-center">
+      <div className="bg-cover bg-center h-96 w-full bg-homebg shadow-xl mb-3 flex justify-center items-center">
+        <div className="text-white w-full h-full font-signika lg:text-6xl phone:text-4xl backdrop-blur-sm bg-white/10 flex items-center justify-center">
           Welcome to Bell Gass
         </div>
       </div>
@@ -26,17 +38,17 @@ function Home() {
           <p className="text-red text-lg">
             Fast, Convenient, and Quality Assured
           </p>
-          <div className="flex items-center  text-lg font-medium">
+          <div className="flex items-center text-lg font-medium">
             <Link
               to="/products"
-              className="bg-red text-xl hover:bg-white  px-4 py-2 rounded-lg mt-3 mr-2 transition duration-200 ease-in-out transform hover:scale-105 hover:text-red  border-2 border-red"
+              className="bg-red text-xl hover:bg-white px-4 py-2 rounded-lg mt-3 mr-2 transition duration-200 ease-in-out transform hover:scale-105 hover:text-red border-2 border-red"
             >
               Shop Now!
             </Link>
             <span className="text-xl">or</span>
             <Link
               to="/refill"
-              className="bg-red text-xl px-4 py-2 hover:bg-white  rounded-lg mt-3 ml-2 transition duration-200 ease-in-out transform hover:scale-105 hover:text-red  border-2 border-red"
+              className="bg-red text-xl px-4 py-2 hover:bg-white rounded-lg mt-3 ml-2 transition duration-200 ease-in-out transform hover:scale-105 hover:text-red border-2 border-red"
             >
               Refill
             </Link>
@@ -74,22 +86,28 @@ function Home() {
           </button>
           {isProductsOpen && (
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6 px-4 md:px-10 py-6">
-              {data.map((item) => (
-                <Link
-                  to={`details/${item.id}`}
-                  key={item.id}
-                  className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition duration-300"
-                >
-                  <img
-                    src={item.download_url}
-                    alt={item.author}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold">{item.author}</h3>
-                  </div>
-                </Link>
-              ))}
+              {products.map((product) =>
+                product.itemTypes.map((itemType) => (
+                  <Link
+                    to={`details/${product.id}`}
+                    key={itemType.id}
+                    className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition duration-300"
+                  >
+                    <img
+                      src={itemType.url}
+                      alt={product.name}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-4">
+                      <h3 className="text-lg font-semibold">
+                        Name: {product.name}
+                      </h3>
+                      <p>Type: {itemType.type}</p>
+                      <p>Price: ${itemType.price}</p>
+                    </div>
+                  </Link>
+                ))
+              )}
             </div>
           )}
         </div>
