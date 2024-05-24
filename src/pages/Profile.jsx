@@ -12,18 +12,18 @@ function Profile() {
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    // Fungsi untuk mengambil data pengguna dari API
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get("URL_pengguna_API"); // Ganti URL_pengguna_API dengan URL yang sesuai
-        setUserData(response.data);
-      } catch (error) {
-        console.error("Error:", error);
+    const auth_token = localStorage.getItem("auth_token");
+    const authToken = JSON.parse(auth_token);
+    const token = authToken.token;
+    const checktoken = (authToken) => {
+      if (auth_token) {
+        setUserData(token);
+      } else {
+        return "no found token";
       }
     };
 
-    // Panggil fungsi fetchUserData saat komponen dimuat
-    fetchUserData();
+    checktoken();
   }, []);
 
   return (
@@ -42,21 +42,6 @@ function Profile() {
                 <AiOutlineUser className="mr-2" />
                 <label className="block mb-1">Username:</label>
                 <p>{userData.username}</p>
-              </div>
-              <div className="mb-4 flex items-center">
-                <AiOutlineLock className="mr-2" />
-                <label className="block mb-1">Password:</label>
-                <p>{userData.password}</p>
-              </div>
-              <div className="mb-4 flex items-center">
-                <AiOutlineHome className="mr-2" />
-                <label className="block mb-1">Address:</label>
-                <p>{userData.address}</p>
-              </div>
-              <div className="mb-4 flex items-center">
-                <AiOutlinePhone className="mr-2" />
-                <label className="block mb-1">Phone:</label>
-                <p>{userData.phone}</p>
               </div>
             </>
           ) : (

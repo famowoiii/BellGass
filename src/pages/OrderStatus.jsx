@@ -12,14 +12,18 @@ function OrderStatus() {
         const token = authToken.token;
 
         try {
-          const response = await axios.get("http://localhost:3010/admin/item", {
+          const response = await axios.get("http://localhost:3010/user/order", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           });
-          setData(response.data);
+          // Sort the data by createdAt in descending order
+          const sortedData = response.data.data.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+          setData(sortedData);
         } catch (error) {
-          console.error("Error fetching products:", error.message);
+          console.error("Error fetching orders:", error.message);
           if (error.response) {
             console.error("Error response data:", error.response.data);
             console.error("Error response status:", error.response.status);
@@ -35,10 +39,20 @@ function OrderStatus() {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       {data ? (
-        <div>
-          <h2 className="text-red">Order Status</h2>
-          <p className="text-red">Status: {data.status}</p>
-          {/* Tambahkan elemen HTML lainnya untuk menampilkan informasi status pesanan */}
+        <div className="space-y-4">
+          {data.map((order) => (
+            <div key={order.id} className="border p-4 rounded-md shadow-sm">
+              <p>
+                <strong>Status:</strong> {order.status}
+              </p>
+              <p>
+                <strong>Delivered:</strong> {order.delivered ? "Yes" : "No"}
+              </p>
+              <p>
+                <strong>Confirmed:</strong> {order.confirmed ? "Yes" : "No"}
+              </p>
+            </div>
+          ))}
         </div>
       ) : (
         <p>Loading...</p>

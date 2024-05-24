@@ -145,7 +145,7 @@ function Navbar() {
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     onClick={closeDropdown}
                   >
-                    Order
+                    Order Status
                   </Link>
                 </li>
                 <li>
@@ -194,12 +194,7 @@ function Navbar() {
                   <Link to="/profile" className="hover:text-red duration-200">
                     <FaUser size={25} />
                   </Link>
-                  <Link
-                    to="/orderstatus"
-                    className="hover:text-red duration-200"
-                  >
-                    Order
-                  </Link>
+
                   <button
                     onClick={handleLogout}
                     className="ml-2 px-2 py-1 rounded-md bg-red-500 text-black hover:bg-red duration-200"

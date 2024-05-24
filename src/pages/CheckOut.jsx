@@ -43,13 +43,6 @@ function CheckOut({ cartItem, countItems, calculateTotal }) {
       return;
     }
 
-    const addressData = {
-      address,
-      city,
-      zipCode,
-      country,
-    };
-
     try {
       const auth_token = localStorage.getItem("auth_token");
       const authToken = JSON.parse(auth_token);
@@ -64,20 +57,9 @@ function CheckOut({ cartItem, countItems, calculateTotal }) {
         }
       );
 
-      const addressList = addressResponse.data.data;
-      const matchedAddress = addressList.find(
-        (addr) =>
-          addr.address === address &&
-          addr.city === city &&
-          addr.zipCode === zipCode &&
-          addr.country === country
-      );
-
-      if (!matchedAddress) {
-        throw new Error("Address not found in the user address list.");
-      }
-
-      const addressId = matchedAddress.id;
+      const latestAddress = addressResponse.data.data[0]; // Ambil alamat pertama dari array
+      const latestAddressId = latestAddress.id;
+      console.log("Latest Address ID:", latestAddressId);
 
       const orderItems = cartItem.map((item, index) => ({
         itemTypeId: item.itemTypes[0].id,
@@ -85,7 +67,7 @@ function CheckOut({ cartItem, countItems, calculateTotal }) {
       }));
 
       const orderData = {
-        addressId,
+        addressId: latestAddressId,
         delivered: deliveryOption === "delivery",
         orderItems,
       };
@@ -111,141 +93,99 @@ function CheckOut({ cartItem, countItems, calculateTotal }) {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-full md:mx-32 bg-white rounded-lg shadow-md overflow-hidden flex flex-col md:flex-row">
-        <div className="w-full md:w-1/2 p-4 shadow-lg">
-          <h2 className="text-2xl font-semibold mb-4">Your Cart</h2>
-          {cartItem.map((item, index) => (
-            <div key={`${item.id}-${index}`} className="flex items-center mb-4">
-              <img
-                src={item.itemTypes[0]?.url || "default_image_url.jpg"}
-                alt=""
-                className="w-16 h-auto mr-4"
-              />
-              <div>
-                <h3 className="font-semibold">{item.name}</h3>
-                <p className="text-sm text-gray-600">
-                  Quantity: {countItems[index]}
-                </p>
-                <p className="text-sm text-gray-600">${item.price}</p>
-              </div>
-            </div>
-          ))}
-          <hr className="my-4" />
-          <div className="text-center mb-4">
-            Total Price: $
-            <span className="font-semibold text-red">{calculateTotal()}</span>
+        <div className="w-full md:w-1/2 p-4">
+          <h2 className="text-2xl font-bold mb-4">Shipping Address</h2>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Address
+            </label>
+            <input
+              type="text"
+              value={address}
+              onChange={handleAddressChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              City
+            </label>
+            <input
+              type="text"
+              value={city}
+              onChange={handleCityChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Zip Code
+            </label>
+            <input
+              type="text"
+              value={zipCode}
+              onChange={handleZipCodeChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Country
+            </label>
+            <input
+              type="text"
+              value={country}
+              onChange={handleCountryChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Delivery Option
+            </label>
+            <select
+              value={deliveryOption}
+              onChange={handleDeliveryOptionChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            >
+              <option value="">Select an option</option>
+              <option value="pickup">Pickup</option>
+              <option value="delivery" disabled={!isDeliveryAvailable}>
+                Delivery
+              </option>
+            </select>
           </div>
         </div>
         <div className="w-full md:w-1/2 p-4">
-          <h2 className="text-2xl font-semibold mb-4">Delivery Information</h2>
-          {hasMixedRefillItems ? (
-            <div className="mb-4 text-red">
-              Your cart contains both refill and non-refill items. Please remove
-              one type to proceed.
-            </div>
-          ) : (
-            <>
-              <div className="mb-4">
-                <label htmlFor="address" className="block mb-2">
-                  Delivery Address:
-                </label>
-                <input
-                  type="text"
-                  id="address"
-                  value={address}
-                  onChange={handleAddressChange}
-                  className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:border-red-500"
-                  placeholder="Enter your delivery address"
-                  disabled={hasMixedRefillItems}
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="city" className="block mb-2">
-                  City:
-                </label>
-                <input
-                  type="text"
-                  id="city"
-                  value={city}
-                  onChange={handleCityChange}
-                  className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:border-red-500"
-                  placeholder="Enter your city"
-                  disabled={hasMixedRefillItems}
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="zipCode" className="block mb-2">
-                  Zip Code:
-                </label>
-                <input
-                  type="text"
-                  id="zipCode"
-                  value={zipCode}
-                  onChange={handleZipCodeChange}
-                  className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:border-red-500"
-                  placeholder="Enter your zip code"
-                  disabled={hasMixedRefillItems}
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="country" className="block mb-2">
-                  Country:
-                </label>
-                <input
-                  type="text"
-                  id="country"
-                  value={country}
-                  onChange={handleCountryChange}
-                  className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:border-red-500"
-                  placeholder="Enter your country"
-                  disabled={hasMixedRefillItems}
-                />
-              </div>
-              {isDeliveryAvailable && (
-                <div className="mb-4">
-                  <label className="block mb-2">Delivery Option:</label>
-                  <select
-                    value={deliveryOption}
-                    onChange={handleDeliveryOptionChange}
-                    className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:border-red-500"
-                    disabled={hasMixedRefillItems}
-                  >
-                    <option value="">Select an option</option>
-                    <option value="delivery">Delivery</option>
-                    <option value="pickup">Pick Up</option>
-                  </select>
-                </div>
-              )}
-              {!isDeliveryAvailable && (
-                <div className="mb-4 text-red">
-                  Sorry, delivery is not available for items with refill
-                  service.
-                </div>
-              )}
-            </>
-          )}
+          <h2 className="text-2xl font-bold mb-4">Order Summary</h2>
+          <ul className="mb-4">
+            {cartItem.map((item, index) => (
+              <li key={index} className="flex justify-between mb-2">
+                <span>{item.name}</span>
+                <span>{countItems[index]}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="flex justify-between mb-4">
+            <span>Total:</span>
+            <span>{calculateTotal()}</span>
+          </div>
           <button
             onClick={handlePayment}
-            className="bg-slate-400 text-black rounded-lg px-5 py-2 w-full hover:bg-red hover:text-white border-2 transition duration-200"
-            disabled={hasMixedRefillItems}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             Proceed to Payment
           </button>
         </div>
       </div>
-
       {showModal && (
-        <div className="fixed inset-0 z-50 overflow-auto bg-gray-500 bg-opacity-75 flex items-center justify-center">
-          <div className="relative bg-white p-8 w-96 rounded-lg">
-            <h2 className="text-lg font-semibold mb-4">
-              Waiting for admin confirmation
-            </h2>
-            <p className="text-gray-700 mb-4">
-              Your order has been sent for processing. Please wait for
-              confirmation from the admin.
-            </p>
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded shadow-md text-center">
+            <h2 className="text-2xl mb-4">Order Successful</h2>
+            <p>Your order has been placed successfully.</p>
             <button
               onClick={() => setShowModal(false)}
-              className="bg-red text-white px-4 py-2 rounded-lg hover:bg-red-600"
+              className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             >
               Close
             </button>
