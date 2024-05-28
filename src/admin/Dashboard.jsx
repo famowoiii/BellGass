@@ -3,57 +3,51 @@ import { FaBell } from "react-icons/fa";
 import ProductDashboard from "./CRUD";
 import OrderConfirmation from "./UserService";
 import OrderList from "./OrderList";
+import io from "socket.io-client";
+
+const socket = io("http://localhost:3010", {
+  reconnection: true,
+});
 
 function Dashboard() {
   const [selectedComponent, setSelectedComponent] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
-  const [showAllNotificationsModal, setShowAllNotificationsModal] =
-    useState(false);
 
-  // Fungsi untuk mendapatkan notifikasi dari API
-  const fetchNotifications = () => {
-    // Di sini Anda bisa melakukan pemanggilan API untuk mendapatkan notifikasi
-    // Misalnya, menggunakan fetch atau Axios
-    // Contoh sederhana untuk dummy data:
-    const fakeNotifications = [
-      {
-        id: 1,
-        message:
-          "Alamat: Jl. Mawar No. 10, Kota Bandung, Kategori Barang: Elektronik, Jumlah: 2",
-        read: false,
-      },
-      {
-        id: 2,
-        message:
-          "Alamat: Jl. Kenanga No. 5, Kota Surabaya, Kategori Barang: Pakaian, Jumlah: 5",
-        read: false,
-      },
-      {
-        id: 3,
-        message:
-          "Alamat: Jl. Anggrek No. 3, Kota Jakarta, Kategori Barang: Makanan, Jumlah: 10",
-        read: false,
-      },
-    ];
-    setNotifications(fakeNotifications);
-  };
-
-  // Panggil fungsi fetchNotifications saat komponen dimuat
   useEffect(() => {
-    fetchNotifications();
+    socket.on("connect", () => {
+      console.log("Connected to the server.");
+    });
+
+    socket.on("notifyAdmin", (message) => {
+      setNotifications((prevNotifications) => [
+        ...prevNotifications,
+        { id: new Date().getTime(), message, read: false },
+      ]);
+      setShowNotificationModal(true);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Disconnected from server.");
+    });
+
+    socket.on("error", (error) => {
+      console.error("Error:", error);
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("notifyAdmin");
+      socket.off("disconnect");
+      socket.off("error");
+    };
   }, []);
 
-  // Fungsi untuk menampilkan atau menyembunyikan modal notifikasi
   const handleToggleNotificationModal = () => {
     setShowNotificationModal(!showNotificationModal);
-    // Setelah menampilkan modal notifikasi, tandai notifikasi sebagai "read"
-    if (!showNotificationModal) {
-      markAllNotificationsAsRead();
-    }
+    markAllNotificationsAsRead();
   };
 
-  // Fungsi untuk menandai notifikasi sebagai "read"
   const markAllNotificationsAsRead = () => {
     const updatedNotifications = notifications.map((notification) => ({
       ...notification,
@@ -61,21 +55,6 @@ function Dashboard() {
     }));
     setNotifications(updatedNotifications);
   };
-
-  // Fungsi untuk menandai notifikasi sebagai "read" dan menutup modal
-  const handleReadAllNotifications = () => {
-    setShowAllNotificationsModal(false);
-    setShowNotificationModal(false); // Menutup modal notifikasi pertama juga
-    markAllNotificationsAsRead();
-  };
-
-  // Cek jika ada notifikasi yang belum dibaca saat komponen dimuat
-  useEffect(() => {
-    const hasUnreadNotifications = notifications.some(
-      (notification) => !notification.read
-    );
-    setShowNotificationModal(hasUnreadNotifications);
-  }, [notifications]);
 
   return (
     <div className="relative flex h-screen">
@@ -117,17 +96,13 @@ function Dashboard() {
       </div>
       {/* Floating Modal Notifikasi */}
       {showNotificationModal && (
-        <div className="fixed top-0 right-0 m-4 bg-white p-4 shadow-md rounded-lg z-10">
-          <h2 className="text-lg font-semibold mb-2">New Order</h2>
+        <div className="fixed top-1/4 right-1/4 m-4 bg-white p-4 shadow-xl rounded-lg z-10">
+          <h2 className="text-lg font-semibold mb-2">
+            You Have Unread Message of New Orders, Please Confirm the orders!!
+          </h2>
           <div className="flex justify-between">
             <button
-              className="bg-blue-500 text-white py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={() => setShowAllNotificationsModal(true)}
-            >
-              All Orders
-            </button>
-            <button
-              className="bg-gray-500 text-white py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
+              className="bg-red text-white py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               onClick={handleToggleNotificationModal}
             >
               Close
@@ -135,30 +110,7 @@ function Dashboard() {
           </div>
         </div>
       )}
-      {/* Modal Notifikasi All Orders */}
-      {showAllNotificationsModal && (
-        <>
-          <div className="fixed top-0 left-0 w-full h-full bg-black opacity-50 z-20"></div>
-          <div className="fixed top-1/4 left-1/4 w-1/2 bg-white z-30 p-8 rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold mb-2">All Orders</h2>
-            <ul className="space-y-2">
-              {notifications.map((notification) => (
-                <li key={notification.id} className="mb-2">
-                  {notification.message}
-                </li>
-              ))}
-            </ul>
-            <div className="flex justify-end mt-4">
-              <button
-                className="bg-gray-500 text-white py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
-                onClick={handleReadAllNotifications}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+
       {/* Floating Notifikasi */}
       <div className="fixed bottom-4 right-4">
         <button
@@ -167,6 +119,18 @@ function Dashboard() {
         >
           <FaBell />
         </button>
+        {/* Tambahkan icon notifikasi di sini */}
+        <div className="absolute top-0 right-0 -mt-1 -mr-1">
+          {notifications.filter((notification) => !notification.read).length >
+            0 && (
+            <div className="bg-red text-white rounded-full h-4 w-4 flex items-center justify-center text-xs">
+              {
+                notifications.filter((notification) => !notification.read)
+                  .length
+              }
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

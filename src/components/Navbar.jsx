@@ -1,10 +1,9 @@
-// Navbar.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { FaShoppingCart, FaUser } from "react-icons/fa";
 import { IoIosLogIn, IoIosClose } from "react-icons/io";
 import { CiLogout } from "react-icons/ci";
-// import { AiFillProduct } from "react-icons/ai";
+
 function Navbar() {
   const [phoneIsOpen, setPhoneIsOpen] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
@@ -50,7 +49,7 @@ function Navbar() {
         <div className="flex flex-col">
           <div>BELL GASS</div>
         </div>
-        <ul className="list-none border-solid flex justify-between   gap-6 px-2 md:flex hidden">
+        <ul className="list-none border-solid flex justify-between gap-6 px-2 md:flex hidden">
           <li>
             <Link to="/" className="hover:text-red duration-200">
               Home Page
@@ -66,6 +65,7 @@ function Navbar() {
               Products
             </Link>
           </li>
+          {isUserLoggedIn && <></>}
         </ul>
         <div className="flex gap-4 md:hidden">
           <button
@@ -99,7 +99,7 @@ function Navbar() {
         {phoneIsOpen && (
           <ul
             ref={dropdownRef}
-            className="md:hidden w-full absolute z-50 bg-white  gap-3 left-0 drop-shadow-2xl rounded-lg"
+            className="md:hidden w-full absolute z-50 bg-white gap-3 left-0 drop-shadow-2xl rounded-lg"
           >
             <li>
               <Link
@@ -154,7 +154,7 @@ function Navbar() {
                     onClick={closeDropdown}
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    profile
+                    Profile
                   </Link>
                 </li>
                 <li>
@@ -181,34 +181,42 @@ function Navbar() {
           </ul>
         )}
         <ul className="flex gap-6 md:flex hidden">
-          <li>
-            <Link to="/cart" className="hover:text-red duration-200">
-              <FaShoppingCart size={25} />
-            </Link>
-          </li>
-          <li>
-            {isUserLoggedIn ? (
-              // Ganti ikon login menjadi ikon pengguna jika pengguna sudah masuk
-              <>
-                <div className="flex text-center gap-4 justify-center flex-row">
-                  <Link to="/profile" className="hover:text-red duration-200">
-                    <FaUser size={25} />
-                  </Link>
+          {isUserLoggedIn ? (
+            // Jika pengguna sudah masuk
+            <>
+              <li>
+                <Link to="/cart" className="hover:text-red duration-200">
+                  <FaShoppingCart size={25} />
+                </Link>
+              </li>
+              <li>
+                <Link to="/orderstatus" className="hover:text-red duration-200">
+                  Order
+                </Link>
+              </li>
 
-                  <button
-                    onClick={handleLogout}
-                    className="ml-2 px-2 py-1 rounded-md bg-red-500 text-black hover:bg-red duration-200"
-                  >
-                    <CiLogout size={25} />
-                  </button>
-                </div>
-              </>
-            ) : (
+              <li>
+                <Link to="/profile" className="hover:text-red duration-200">
+                  <FaUser size={25} />
+                </Link>
+              </li>
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="ml-2 px-2 py-1 rounded-md bg-red-500 text-black hover:bg-red duration-200"
+                >
+                  <CiLogout size={25} />
+                </button>
+              </li>
+            </>
+          ) : (
+            // Jika pengguna belum masuk
+            <li>
               <Link to="/login" className="hover:text-red duration-200">
                 <IoIosLogIn size={25} />
               </Link>
-            )}
-          </li>
+            </li>
+          )}
         </ul>
       </div>
     </div>

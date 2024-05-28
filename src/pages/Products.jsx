@@ -63,45 +63,51 @@ function Products({ setCartItem, cartItem, addToCart }) {
         {loading ? (
           <div className="text-center">Loading... please wait</div>
         ) : (
-          products.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-lg p-6 shadow-md flex flex-col md:flex-row gap-10"
-            >
-              <img
-                src={item.itemTypes[0]?.url || "default_image_url.jpg"}
-                alt={item.name}
-                className="w-1/6 h-auto object-cover"
-              />
-              <div>
-                <h3 className="text-xl font-semibold mb-2">{item.name}</h3>
-                <p className="text-gray-700 mb-4">{item.description}</p>
-                <div className="flex flex-col md:flex-row items-center">
-                  <div className="flex gap-2">
-                    {item.itemTypes.map((type) => (
-                      <button
-                        key={type.id}
-                        onClick={() => handleTypeChange(item.id, type.type)}
-                        className={`border rounded-md py-1 px-2 focus:outline-none ${
-                          selectedType[item.id] === type.type
-                            ? "bg-blue-500 text-white"
-                            : "bg-gray-200 text-gray-700"
-                        }`}
-                      >
-                        {type.type}
-                      </button>
-                    ))}
+          products.map((item) => {
+            const imageUrl = item.itemTypes[0]?.url
+              ? `http://localhost:3010/${item.itemTypes[0].url}`
+              : "/path/to/default-image.jpg";
+
+            return (
+              <div
+                key={item.id}
+                className="bg-white rounded-lg p-6 shadow-md flex flex-col md:flex-row gap-10"
+              >
+                <img
+                  src={imageUrl}
+                  alt={item.name}
+                  className="w-1/6 h-auto object-cover"
+                />
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">{item.name}</h3>
+                  <p className="text-gray-700 mb-4">{item.description}</p>
+                  <div className="flex flex-col md:flex-row items-center">
+                    <div className="flex gap-2">
+                      {item.itemTypes.map((type) => (
+                        <button
+                          key={type.id}
+                          onClick={() => handleTypeChange(item.id, type.type)}
+                          className={`border rounded-md py-1 px-2 focus:outline-none ${
+                            selectedType[item.id] === type.type
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-200 text-gray-700"
+                          }`}
+                        >
+                          {type.type}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => handleAddToCart(item)}
+                      className="bg-red text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-200 ml-2"
+                    >
+                      Add to Cart
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleAddToCart(item)}
-                    className="bg-red text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-200 ml-2"
-                  >
-                    Add to Cart
-                  </button>
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
       {showModal && (

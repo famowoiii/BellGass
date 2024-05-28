@@ -47,49 +47,58 @@ function Cart({
         {cartItem.length === 0 ? (
           <div className="text-center text-gray-600">Your cart is empty.</div>
         ) : (
-          cartItem.map((selectedProduct, index) => (
-            <div
-              key={`${selectedProduct.id}-${index}`}
-              className="bg-white rounded-lg shadow-md overflow-hidden flex items-center p-4"
-            >
-              <img
-                src={selectedProduct.itemTypes[0].url}
-                alt={selectedProduct.name}
-                className="w-1/6 h-auto object-cover mr-4"
-              />
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold mb-2">
-                  {selectedProduct.name}
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Type: {selectedProduct.type}
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
+          cartItem.map((selectedProduct, index) => {
+            const imageUrl = `http://localhost:3010/${selectedProduct.itemTypes[0].url}`;
+            console.log("Image URL:", imageUrl); // Debug: log image URL
+
+            return (
+              <div
+                key={`${selectedProduct.id}-${index}`}
+                className="bg-white rounded-lg shadow-md overflow-hidden flex items-center p-4"
+              >
+                <img
+                  src={imageUrl}
+                  alt={selectedProduct.name}
+                  className="w-1/6 h-auto object-cover mr-4"
+                  onError={(e) => {
+                    console.error("Error loading image:", imageUrl);
+                    e.target.src = "/path/to/default-image.jpg"; // Fallback image
+                  }}
+                />
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold mb-2">
+                    {selectedProduct.name}
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Type: {selectedProduct.itemTypes[0].type}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <button
+                        onClick={() => removeCountHandler(index)}
+                        className="text-red hover:text-red-700"
+                      >
+                        <IoIosRemoveCircle size={20} />
+                      </button>
+                      <span className="mx-2">{countItems[index]}</span>
+                      <button
+                        onClick={() => addCountHandler(index)}
+                        className="text-green-500 hover:text-green-700"
+                      >
+                        <IoIosAddCircle size={20} />
+                      </button>
+                    </div>
                     <button
-                      onClick={() => removeCountHandler(index)}
+                      onClick={() => removeFromCart(index)}
                       className="text-red hover:text-red-700"
                     >
-                      <IoIosRemoveCircle size={20} />
-                    </button>
-                    <span className="mx-2">{countItems[index]}</span>
-                    <button
-                      onClick={() => addCountHandler(index)}
-                      className="text-green-500 hover:text-green-700"
-                    >
-                      <IoIosAddCircle size={20} />
+                      Remove
                     </button>
                   </div>
-                  <button
-                    onClick={() => removeFromCart(index)}
-                    className="text-red hover:text-red-700"
-                  >
-                    Remove
-                  </button>
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
       {cartItem.length > 0 && (
