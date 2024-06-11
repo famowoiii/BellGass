@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { FaCheck } from "react-icons/fa";
 
-function OrderList() {
-  const [finishedOrders, setFinishedOrders] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [addressUsers, setAddressUsers] = useState([]);
+function AcceptedOrders() {
+  const [acceptedOrders, setAcceptedOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchOrdersAndUsers = async () => {
-      const auth_token = localStorage.getItem("auth_token");
-      const authToken = JSON.parse(auth_token);
-      const token = authToken.token;
-
+    const fetchAcceptedOrders = async () => {
+      setLoading(true);
       try {
-        // Fetch orders
+        const auth_token = localStorage.getItem("auth_token");
+        const authToken = JSON.parse(auth_token);
+        const token = authToken.token;
+
         const ordersResponse = await axios.get(
           "http://localhost:3010/admin/order",
           {
@@ -22,106 +23,102 @@ function OrderList() {
             },
           }
         );
-        const finishedOrdersData = ordersResponse.data.data.filter(
+
+        const acceptedOrdersData = ordersResponse.data.data.filter(
           (order) => order.status === "accepted"
         );
-        setFinishedOrders(finishedOrdersData);
-
-        // Fetch users
-        const usersResponse = await axios.get(
-          "http://localhost:3010/admin/user",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setUsers(usersResponse.data.data);
-
-        // Fetch addresses
-        const addressesResponse = await axios.get(
-          "http://localhost:3010/admin/address",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setAddressUsers(addressesResponse.data.data);
+        setAcceptedOrders(acceptedOrdersData);
       } catch (error) {
-        console.error("Error fetching data:", error.message);
-        if (error.response) {
-          console.error("Error response data:", error.response.data);
-          console.error("Error response status:", error.response.status);
-          console.error("Error response headers:", error.response.headers);
-        }
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchOrdersAndUsers();
+    fetchAcceptedOrders();
   }, []);
 
-  const alignUser = (userId) => {
-    const user = users.find((user) => user.id === userId);
-    return user ? user.fullname : "Unknown User";
-  };
-
-  const alignAddress = (addressId) => {
-    const userAddress = addressUsers.find(
-      (address) => address.id === addressId
+  const calculateTotalPrice = (orderItems) => {
+    return orderItems.reduce(
+      (total, item) => total + item.quantity * item.itemType.price,
+      0
     );
-    return userAddress
-      ? `${userAddress.address}, ${userAddress.city}, ${userAddress.zipCode}`
-      : "Unknown Address";
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-semibold mb-4">Finished Orders</h2>
-      <table className="w-full">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="text-left py-2 px-4">Order ID</th>
-            <th className="text-left py-2 px-4">User</th>
-            <th className="text-left py-2 px-4">Address</th>
-            <th className="text-left py-2 px-4">Date</th>
-            <th className="text-left py-2 px-4">Type</th>
-            <th className="text-left py-2 px-4">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {finishedOrders.length === 0 ? (
+    <div className="container">
+      <h2 className="text-xl font-semibold mb-4">Accepted Orders</h2>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p>Error: {error}</p>
+      ) : (
+        <table className="min-w-full">
+          <thead>
             <tr>
-              <td colSpan="6" className="text-center py-4">
-                No orders accepted yet!
-              </td>
+              <th className="px-6 py-3 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-600 uppercase tracking-wider">
+                Order ID
+              </th>
+              <th className="px-6 py-3 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-600 uppercase tracking-wider">
+                User
+              </th>
+              <th className="px-6 py-3 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-600 uppercase tracking-wider">
+                Address
+              </th>
+              <th className="px-6 py-3 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-600 uppercase tracking-wider">
+                Items
+              </th>
+              <th className="px-6 py-3 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-600 uppercase tracking-wider">
+                Total Price
+              </th>
+              <th className="px-6 py-3 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-600 uppercase tracking-wider">
+                Order Status
+              </th>
+              <th className="px-6 py-3 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-600 uppercase tracking-wider">
+                Delivery Status
+              </th>
             </tr>
-          ) : (
-            finishedOrders.map((order) => (
-              <tr key={order.id} className="border-b border-gray-200">
-                <td className="py-2 px-4">{order.id}</td>
-                <td className="py-2 px-4">{alignUser(order.userId)}</td>
-                <td className="py-2 px-4">{alignAddress(order.addressId)}</td>
-                <td className="py-2 px-4">{order.createdAt}</td>
-                <td className="py-2 px-4">{order.type}</td>
-                <td className="py-2 px-4">
-                  <span
-                    className={`inline-block px-3 py-1 rounded ${
-                      order.status === "finished"
-                        ? "bg-green-500 text-white"
-                        : ""
-                    }`}
-                  >
-                    {order.status}
-                  </span>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {acceptedOrders.map((order) => (
+              <tr key={order.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-no-wrap">{order.id}</td>
+                <td className="px-6 py-4 whitespace-no-wrap">
+                  {order.user.fullname} <br /> ({order.user.phone})
+                </td>
+                <td className="px-6 py-4 whitespace-no-wrap">
+                  {order.address.address}, {order.address.city},{" "}
+                  {order.address.zipCode}, {order.address.country}
+                </td>
+                <td className="px-6 py-4 whitespace-no-wrap">
+                  {order.orderItems.map((item) => (
+                    <div key={item.id}>
+                      {item.itemType.type} - ${item.itemType.price} (Refill:{" "}
+                      {item.itemType.refill ? "Yes" : "No"}) x {item.quantity}
+                    </div>
+                  ))}
+                </td>
+                <td className="px-6 py-4 whitespace-no-wrap">
+                  ${calculateTotalPrice(order.orderItems)}
+                </td>
+                <td className="px-6 py-4 whitespace-no-wrap">{order.status}</td>
+                <td className="px-6 py-4 whitespace-no-wrap">
+                  {order.delivered ? (
+                    <span className="flex items-center">
+                      <FaCheck className="text-green-500 mr-1" />
+                      Delivered
+                    </span>
+                  ) : (
+                    <span className="text-red">Not Delivered</span>
+                  )}
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
 
-export default OrderList;
+export default AcceptedOrders;

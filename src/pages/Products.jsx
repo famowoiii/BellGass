@@ -12,8 +12,10 @@ function Products({ setCartItem, cartItem, addToCart }) {
     const fetchData = async () => {
       try {
         const response = await axios.get("http://localhost:3010/guest/item");
-        const filteredProducts = response.data.data.filter((item) =>
-          item.itemTypes.some((type) => !type.refill)
+        const filteredProducts = response.data.data.filter(
+          (item) =>
+            item.itemTypes.some((type) => !type.refill) &&
+            item.itemTypes.every((type) => !type.deletedAt)
         );
         setProducts(filteredProducts);
         setLoading(false);

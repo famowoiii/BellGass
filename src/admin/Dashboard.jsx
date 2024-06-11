@@ -4,6 +4,7 @@ import ProductDashboard from "./CRUD";
 import OrderConfirmation from "./UserService";
 import OrderList from "./OrderList";
 import io from "socket.io-client";
+import AcceptedOrders from "./OrderList";
 
 const socket = io("http://localhost:3010", {
   reconnection: true,
@@ -13,6 +14,7 @@ function Dashboard() {
   const [selectedComponent, setSelectedComponent] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [orderConfirmationKey, setOrderConfirmationKey] = useState(0);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -25,6 +27,8 @@ function Dashboard() {
         { id: new Date().getTime(), message, read: false },
       ]);
       setShowNotificationModal(true);
+      // Update key to re-render OrderConfirmation component
+      setOrderConfirmationKey((prevKey) => prevKey + 1);
     });
 
     socket.on("disconnect", () => {
@@ -46,6 +50,8 @@ function Dashboard() {
   const handleToggleNotificationModal = () => {
     setShowNotificationModal(!showNotificationModal);
     markAllNotificationsAsRead();
+    // Refresh halaman setelah menutup modal notifikasi
+    window.location.reload();
   };
 
   const markAllNotificationsAsRead = () => {
@@ -73,7 +79,11 @@ function Dashboard() {
           <li>
             <button
               className="text-blue-500 hover:underline"
-              onClick={() => setSelectedComponent(<OrderConfirmation />)}
+              onClick={() =>
+                setSelectedComponent(
+                  <OrderConfirmation key={orderConfirmationKey} />
+                )
+              }
             >
               Confirmation
             </button>
@@ -81,7 +91,7 @@ function Dashboard() {
           <li>
             <button
               className="text-blue-500 hover:underline"
-              onClick={() => setSelectedComponent(<OrderList orders={[]} />)}
+              onClick={() => setSelectedComponent(<AcceptedOrders />)}
             >
               Finished Orders
             </button>

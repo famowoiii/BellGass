@@ -8,6 +8,7 @@ function RegisterCard({ toLogin }) {
   const [fullname, setFullname] = React.useState("");
   const [username, setUsername] = React.useState("");
   const [email, setEmail] = React.useState("");
+  const [phone, setPhone] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [repeat_password, setRepeatPassword] = React.useState("");
   const [error, setError] = React.useState("");
@@ -28,6 +29,7 @@ function RegisterCard({ toLogin }) {
           email,
           password,
           repeat_password,
+          phone,
         }),
       });
       const data = await response.json();
@@ -90,6 +92,16 @@ function RegisterCard({ toLogin }) {
           />
         </div>
         <div className="flex items-center border-b border-gray-300 py-2">
+          <MdOutlineEmail className="w-6 h-6 mr-3" />
+          <input
+            type="number"
+            placeholder="Phone Number"
+            className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center border-b border-gray-300 py-2">
           <RiLockPasswordLine className="w-6 h-6 mr-3" />
           <input
             type="password"
@@ -125,10 +137,7 @@ function RegisterCard({ toLogin }) {
         </button>
       </div>
       <div className="text-center mt-4">
-        <button
-          onClick={() => toLogin()}
-          className="text-red-500 hover:text-black"
-        >
+        <button onClick={() => toLogin()} className="text-red hover:text-black">
           Already have an account? Login here!
         </button>
       </div>

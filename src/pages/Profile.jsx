@@ -9,15 +9,25 @@ import {
 } from "react-icons/ai";
 
 function Profile() {
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState([]);
+
+  const auth_token = localStorage.getItem("auth_token");
+  const authToken = JSON.parse(auth_token);
+  const token = authToken.token;
+  const fullname = authToken.fullname;
+  const email = authToken.email;
+  const username = authToken.username;
 
   useEffect(() => {
     const auth_token = localStorage.getItem("auth_token");
     const authToken = JSON.parse(auth_token);
     const token = authToken.token;
+    const fullname = authToken.fullname;
+    const email = authToken.email;
+    const username = authToken.username;
     const checktoken = (authToken) => {
       if (auth_token) {
-        setUserData(token);
+        setUserData([fullname, email, username]);
       } else {
         return "no found token";
       }
@@ -34,14 +44,16 @@ function Profile() {
           {userData ? (
             <>
               <div className="mb-4 flex items-center">
+                <AiOutlineUser className="mr-2" />
+                <label className="block mb-1">fullname: {userData[0]}</label>
+              </div>
+              <div className="mb-4 flex items-center">
                 <AiOutlineMail className="mr-2" />
-                <label className="block mb-1">Email:</label>
-                <p>{userData.email}</p>
+                <label className="block mb-1">Email: {userData[1]}</label>
               </div>
               <div className="mb-4 flex items-center">
                 <AiOutlineUser className="mr-2" />
-                <label className="block mb-1">Username:</label>
-                <p>{userData.username}</p>
+                <label className="block mb-1">username: {userData[2]}</label>
               </div>
             </>
           ) : (

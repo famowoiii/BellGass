@@ -5,7 +5,6 @@ import { io } from "socket.io-client";
 function OrderStatus() {
   const [data, setData] = useState(null);
   const [notifications, setNotifications] = useState([]);
-  const userId = JSON.parse(localStorage.getItem("auth_token")).userId;
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
@@ -22,7 +21,7 @@ function OrderStatus() {
       console.log("New notification For Admin:", message);
     });
 
-    newSocket.on(userId, (message) => {
+    newSocket.on("notifyUser", (message) => {
       console.log("New notification For User:", message);
       setNotifications((prev) => [...prev, message]);
       fetchOrderStatus();
@@ -39,7 +38,21 @@ function OrderStatus() {
     return () => {
       newSocket.disconnect();
     };
-  }, [userId]);
+  }, []);
+
+  useEffect(() => {
+    fetchOrderStatus();
+    fetchNotifications();
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await axios.get("http://localhost:3010/user/notify");
+      setNotifications(response.data);
+    } catch (error) {
+      console.error("Error fetching notifications:", error.message);
+    }
+  };
 
   const fetchOrderStatus = async () => {
     const auth_token = localStorage.getItem("auth_token");
@@ -67,10 +80,6 @@ function OrderStatus() {
       }
     }
   };
-
-  useEffect(() => {
-    fetchOrderStatus();
-  }, []);
 
   const handlePayment = (orderId) => {
     console.log(`Redirecting to payment for order ${orderId}`);
@@ -113,9 +122,7 @@ function OrderStatus() {
                 <p className="text-sm mb-1">
                   Delivered: {order.delivered ? "Yes" : "No"}
                 </p>
-                <p className="text-sm mb-1">
-                  Confirmed: {order.confirmed ? "Yes" : "No"}
-                </p>
+
                 <p className="text-sm mb-1">
                   Created At: {new Date(order.createdAt).toLocaleString()}
                 </p>
@@ -128,7 +135,8 @@ function OrderStatus() {
                   className="mt-4 w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition duration-200"
                   onClick={() => handlePayment(order.id)}
                 >
-                  Proceed to Payment
+                  Proceed to Payment{" "}
+                  <span className="font-bold">(Checkout)</span>
                 </button>
               )}
             </div>

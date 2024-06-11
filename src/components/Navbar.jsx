@@ -203,7 +203,7 @@ function Navbar() {
               <li>
                 <button
                   onClick={handleLogout}
-                  className="ml-2 px-2 py-1 rounded-md bg-red-500 text-black hover:bg-red duration-200"
+                  className="ml-2 px-2 py-1 rounded-md bg-red text-black hover:bg-red duration-200"
                 >
                   <CiLogout size={25} />
                 </button>

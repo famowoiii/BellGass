@@ -9,11 +9,17 @@ const isValidGUID = (str) => {
   return regexGuid.test(str);
 };
 
+// Function to sanitize type input
+const sanitizeType = (type) => {
+  return type.replace(/\s+/g, "").replace(/\.+/g, "");
+};
+
 function ProductForm({
   onAddProduct,
   selectedProduct,
   onProductChange,
   products,
+  onRefresh,
 }) {
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -67,9 +73,10 @@ function ProductForm({
       return;
     }
 
+    const sanitizedType = sanitizeType(newProductType.type);
     const formData = new FormData();
     formData.append("id", selectedProduct);
-    formData.append("type", JSON.stringify(newProductType.type));
+    formData.append("type", sanitizedType);
     formData.append("price", newProductType.price);
     formData.append("stock", newProductType.stock);
     formData.append("refill", newProductType.refill);
@@ -92,6 +99,7 @@ function ProductForm({
         refill: false,
         image: null,
       });
+      onRefresh(); // Trigger refresh
     } catch (error) {
       console.error("Error adding product type:", error.message);
       if (error.response) {
@@ -112,11 +120,12 @@ function ProductForm({
       return;
     }
 
+    const sanitizedType = sanitizeType(newProduct.type);
     const formData = new FormData();
     formData.append("name", newProduct.name);
     formData.append("description", newProduct.description);
     formData.append("category", newProduct.category);
-    formData.append("type", newProduct.type);
+    formData.append("type", sanitizedType);
     formData.append("price", newProduct.price);
     formData.append("stock", newProduct.stock);
     formData.append("refill", newProduct.refill);
@@ -146,12 +155,20 @@ function ProductForm({
         refill: false,
         image: null,
       });
+      onRefresh();
+      window.location.reload(); // Trigger refresh
     } catch (error) {
       console.error("Error adding product:", error.message);
       if (error.response) {
         console.error("Error response data:", error.response.data);
         console.error("Error response status:", error.response.status);
         console.error("Error response headers:", error.response.headers);
+
+        if (error.response.status === 409) {
+          console.error(
+            "Conflict: A product with the same name or type may already exist."
+          );
+        }
       }
     }
   };
@@ -198,13 +215,13 @@ function ProductForm({
               onChange={handleInputChange}
               className="w-full border rounded py-2 px-4"
             >
-              <option value="1 kg">1kg</option>
-              <option value="2 kg">2kg</option>
-              <option value="3 kg">3kg</option>
-              <option value="4 kg">4kg</option>
-              <option value="9 kg">9kg</option>
-              <option value="18 kg">18kg</option>
-              <option value="45 kg">45kg</option>
+              <option value="1kg">1kg</option>
+              <option value="2kg">2kg</option>
+              <option value="3kg">3kg</option>
+              <option value="4kg">4kg</option>
+              <option value="9kg">9kg</option>
+              <option value="18kg">18kg</option>
+              <option value="45kg">45kg</option>
             </select>
           </div>
           <div>
@@ -260,6 +277,7 @@ function ProductForm({
 
       <form className="mb-8 p-3 bg-white rounded shadow-md">
         <h2 className="text-xl font-bold mb-4">Add New Product Type</h2>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-700">Select Product</label>
@@ -277,7 +295,7 @@ function ProductForm({
             </select>
           </div>
           <div>
-            Type
+            <label className="block text-gray-700">Type</label>
             <select
               name="type"
               value={newProductType.type}
@@ -350,6 +368,58 @@ function ProductForm({
 function ProductDashboard() {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState("");
+  const [refresh, setRefresh] = useState(false);
+
+  // Di dalam komponen ProductDashboard
+  const handleDeleteLastProductType = async (productId) => {
+    const auth_token = localStorage.getItem("auth_token");
+    const authToken = JSON.parse(auth_token);
+    const token = authToken.token;
+
+    if (!token) {
+      console.error("auth_token tidak ditemukan");
+      return;
+    }
+
+    try {
+      // Mengambil produk yang sesuai dengan ID
+      const selectedItem = products.find((product) => product.id === productId);
+
+      if (!selectedItem || !selectedItem.itemTypes) {
+        console.error("Selected product or its item types not found");
+        return;
+      }
+
+      // Mengambil tipe produk terakhir
+      const lastItemType =
+        selectedItem.itemTypes[selectedItem.itemTypes.length - 1];
+
+      if (!lastItemType) {
+        console.error("No item types found for the selected product");
+        return;
+      }
+
+      // Menghapus tipe produk terakhir dengan mengirimkan permintaan DELETE
+      await axios.delete("http://localhost:3010/admin/item/type", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          id: lastItemType.id,
+        },
+      });
+
+      // Refresh produk setelah penghapusan berhasil
+      handleRefresh();
+    } catch (error) {
+      console.error("Error deleting last product type:", error.message);
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+        console.error("Error response status:", error.response.status);
+        console.error("Error response headers:", error.response.headers);
+      }
+    }
+  };
 
   useEffect(() => {
     const auth_token = localStorage.getItem("auth_token");
@@ -374,10 +444,14 @@ function ProductDashboard() {
           console.error("Error response headers:", error.response.headers);
         }
       });
-  }, []);
+  }, [refresh]);
 
   const handleAddProduct = (newProduct) => {
     setProducts([...products, newProduct]);
+  };
+
+  const handleRefresh = () => {
+    setRefresh(!refresh);
   };
 
   return (
@@ -388,40 +462,62 @@ function ProductDashboard() {
         selectedProduct={selectedProduct}
         onProductChange={setSelectedProduct}
         products={products}
+        onRefresh={handleRefresh}
       />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {products.length > 0 &&
-          products.map((product) => (
-            <div key={product.id} className="p-4 bg-white rounded shadow-md">
-              <p className="text-gray-700 mb-2">Product Name: {product.name}</p>
-              <p className="text-gray-700 mb-2">
-                Product Description: {product.description}
-              </p>
+          products
+            .filter(
+              (product) =>
+                product.itemTypes &&
+                product.itemTypes.some((itemType) => !itemType.deletedAt)
+            )
+            .map((product) => (
+              <div key={product.id} className="p-4 bg-white rounded shadow-md">
+                <p className="text-gray-700 mb-2">
+                  Product Name: {product.name}
+                </p>
+                <p className="text-gray-700 mb-2">
+                  Product Description: {product.description}
+                </p>
 
-              {product.itemTypes &&
-                product.itemTypes.map((itemType) => (
-                  <div key={itemType.id} className="mb-4">
-                    <p className="text-gray-700 mb-2">Type: {itemType.type}</p>
-                    <p className="text-gray-700 mb-2">
-                      Price: {itemType.price}
-                    </p>
-                    <p className="text-gray-700 mb-2">
-                      Stock: {itemType.stock}
-                    </p>
-                    <p className="text-gray-700 mb-2">
-                      Refill: {itemType.refill ? "Yes" : "No"}
-                    </p>
-                    {itemType.url && (
-                      <img
-                        src={`http://localhost:3010/${itemType.url}`}
-                        alt={product.name}
-                        className="w-full h-48 object-cover mb-2"
-                      />
-                    )}
-                  </div>
-                ))}
-            </div>
-          ))}
+                {product.itemTypes &&
+                  product.itemTypes
+                    .filter((itemType) => !itemType.deletedAt)
+                    .map((itemType) => (
+                      <div key={itemType.id} className="mb-4">
+                        {itemType.url && (
+                          <img
+                            src={`http://localhost:3010/${itemType.url}`}
+                            alt={product.name}
+                            className="w-full h-48 object-cover mb-2"
+                          />
+                        )}
+                        <p className="text-gray-700 mb-2">
+                          Type: {itemType.type}
+                        </p>
+                        <p className="text-gray-700 mb-2">
+                          Price: {itemType.price}
+                        </p>
+                        <p className="text-gray-700 mb-2">
+                          Stock: {itemType.stock}
+                        </p>
+                        <p className="text-gray-700 mb-2">
+                          Refill: {itemType.refill ? "Yes" : "No"}
+                        </p>
+
+                        <button
+                          onClick={() =>
+                            handleDeleteLastProductType(product.id)
+                          }
+                          className="bg-red text-white py-1 px-2 rounded inline-block"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))}
+              </div>
+            ))}
       </div>
     </div>
   );

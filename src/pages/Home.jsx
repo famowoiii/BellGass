@@ -89,12 +89,11 @@ function Home() {
               {products.map((product) =>
                 product.itemTypes.map((itemType) => (
                   <Link
-                    to={`details/${product.id}`}
                     key={itemType.id}
                     className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition duration-300"
                   >
                     <img
-                      src={itemType.url}
+                      src={`http://localhost:3010/${itemType.url}`}
                       alt={product.name}
                       className="w-full h-48 object-cover"
                     />

@@ -12,8 +12,10 @@ function Refill({ addToCart }) {
     const fetchData = async () => {
       try {
         const response = await axios.get("http://localhost:3010/guest/item");
-        const refillProducts = response.data.data.filter((item) =>
-          item.itemTypes.some((type) => type.refill)
+        const refillProducts = response.data.data.filter(
+          (item) =>
+            item.itemTypes.some((type) => type.refill) &&
+            item.itemTypes.every((type) => !type.deletedAt)
         );
         setProducts(refillProducts);
         setLoading(false);
@@ -61,7 +63,7 @@ function Refill({ addToCart }) {
               className="bg-white rounded-lg p-6 shadow-md flex flex-col md:flex-row gap-10"
             >
               <img
-                src={item.itemTypes[0]?.url || "default_image_url.jpg"}
+                src={`http://localhost:3010/${item.itemTypes[0].url}`}
                 alt={item.name}
                 className="w-1/6 h-auto object-cover"
               />
