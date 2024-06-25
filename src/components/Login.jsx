@@ -14,7 +14,7 @@ function Login({ registerHandler }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = "http://localhost:3010/auth/login"; // Masukkan URL untuk endpoint login
+      const url = "http://bellgas.com.au/auth/login"; // Masukkan URL untuk endpoint login
       const { data: res } = await axios.post(url, data);
       localStorage.setItem("auth_token", JSON.stringify(res.data));
 

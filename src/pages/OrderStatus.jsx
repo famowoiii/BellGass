@@ -8,7 +8,7 @@ function OrderStatus() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3010", {
+    const newSocket = io("http://bellgas.com.au", {
       reconnection: true,
     });
     setSocket(newSocket);
@@ -47,7 +47,7 @@ function OrderStatus() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get("http://localhost:3010/user/notify");
+      const response = await axios.get("http://bellgas.com.au/user/notify");
       setNotifications(response.data);
     } catch (error) {
       console.error("Error fetching notifications:", error.message);
@@ -61,7 +61,7 @@ function OrderStatus() {
       const token = authToken.token;
 
       try {
-        const response = await axios.get("http://localhost:3010/user/order", {
+        const response = await axios.get("http://bellgas.com.au/user/order", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

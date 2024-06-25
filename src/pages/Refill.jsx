@@ -11,7 +11,7 @@ function Refill({ addToCart }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:3010/guest/item");
+        const response = await axios.get("http://bellgas.com.au/guest/item");
         console.log("API response:", response.data.data); // Log data from API
         const refillProducts = response.data.data.filter((item) =>
           item.itemTypes.some((type) => type.refill === true)
@@ -63,7 +63,7 @@ function Refill({ addToCart }) {
               className="bg-white rounded-lg p-6 shadow-md flex flex-col md:flex-row gap-10"
             >
               <img
-                src={`http://localhost:3010/${item.itemTypes[0].url}`}
+                src={`http://bellgas.com.au/${item.itemTypes[0].url}`}
                 alt={item.name}
                 className="w-1/6 h-auto object-cover"
               />

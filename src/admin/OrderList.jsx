@@ -16,7 +16,7 @@ function AcceptedOrders() {
         const token = authToken.token;
 
         const ordersResponse = await axios.get(
-          "http://localhost:3010/admin/order",
+          "http://bellgas.com.au/admin/order",
           {
             headers: {
               Authorization: `Bearer ${token}`,

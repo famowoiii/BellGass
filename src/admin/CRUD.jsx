@@ -89,7 +89,7 @@ function ProductForm({
     }
 
     try {
-      await axios.post("http://localhost:3010/admin/item/type", formData, {
+      await axios.post("http://bellgas.com.au/admin/item/type", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -140,7 +140,7 @@ function ProductForm({
 
     try {
       const response = await axios.post(
-        "http://localhost:3010/admin/item",
+        "http://bellgas.com.au/admin/item",
         formData,
         {
           headers: {
@@ -395,7 +395,7 @@ function ProductDashboard() {
     try {
       // Kirim permintaan PUT untuk update stock berdasarkan ID jenis item
       await axios.put(
-        "http://localhost:3010/admin/item/type",
+        "http://bellgas.com.au/admin/item/type",
         { id: selectedItemType, stock: stock }, // Kirim ID jenis item dalam payload
         {
           headers: {
@@ -430,7 +430,7 @@ function ProductDashboard() {
     }
 
     try {
-      await axios.delete(`http://localhost:3010/admin/item/type`, {
+      await axios.delete(`http://bellgas.com.au/admin/item/type`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -457,7 +457,7 @@ function ProductDashboard() {
     const token = authToken.token;
 
     axios
-      .get("http://localhost:3010/admin/item", {
+      .get("http://bellgas.com.au/admin/item", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -518,7 +518,7 @@ function ProductDashboard() {
                       <div key={itemType.id} className="mb-4">
                         {itemType.url && (
                           <img
-                            src={`http://localhost:3010/${itemType.url}`}
+                            src={`http://bellgas.com.au/${itemType.url}`}
                             alt={product.name}
                             className="w-full h-48 object-cover mb-2"
                           />

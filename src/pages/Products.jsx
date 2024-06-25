@@ -11,7 +11,7 @@ function Products({ setCartItem, cartItem, addToCart }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:3010/guest/item");
+        const response = await axios.get("http://bellgas.com.au/guest/item");
         const filteredProducts = response.data.data.filter(
           (item) =>
             item.itemTypes.some((type) => !type.refill) &&
@@ -67,7 +67,7 @@ function Products({ setCartItem, cartItem, addToCart }) {
         ) : (
           products.map((item) => {
             const imageUrl = item.itemTypes[0]?.url
-              ? `http://localhost:3010/${item.itemTypes[0].url}`
+              ? `http://bellgas.com.au/${item.itemTypes[0].url}`
               : "/path/to/default-image.jpg";
 
             return (

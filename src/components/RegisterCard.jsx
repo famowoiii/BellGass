@@ -18,7 +18,7 @@ function RegisterCard({ toLogin }) {
     try {
       setLoading(true);
       // Replace API URL with the appropriate registration URL
-      const response = await fetch("http://localhost:3010/auth/register", {
+      const response = await fetch("http://bellgas.com.au/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

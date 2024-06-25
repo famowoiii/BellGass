@@ -6,7 +6,7 @@ import OrderList from "./OrderList";
 import io from "socket.io-client";
 import AcceptedOrders from "./OrderList";
 
-const socket = io("http://localhost:3010", {
+const socket = io("http://bellgas.com.au", {
   reconnection: true,
 });
 

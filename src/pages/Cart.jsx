@@ -48,7 +48,7 @@ function Cart({
           <div className="text-center text-gray-600">Your cart is empty.</div>
         ) : (
           cartItem.map((selectedProduct, index) => {
-            const imageUrl = `http://localhost:3010/${selectedProduct.itemTypes[0].url}`;
+            const imageUrl = `http://bellgas.com.au/${selectedProduct.itemTypes[0].url}`;
             console.log("Image URL:", imageUrl); // Debug: log image URL
 
             return (
