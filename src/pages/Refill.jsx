@@ -12,11 +12,11 @@ function Refill({ addToCart }) {
     const fetchData = async () => {
       try {
         const response = await axios.get("http://localhost:3010/guest/item");
-        const refillProducts = response.data.data.filter(
-          (item) =>
-            item.itemTypes.some((type) => type.refill) &&
-            item.itemTypes.every((type) => !type.deletedAt)
+        console.log("API response:", response.data.data); // Log data from API
+        const refillProducts = response.data.data.filter((item) =>
+          item.itemTypes.some((type) => type.refill === true)
         );
+        console.log("Filtered refill products:", refillProducts); // Log filtered data
         setProducts(refillProducts);
         setLoading(false);
       } catch (error) {
@@ -71,12 +71,12 @@ function Refill({ addToCart }) {
                 <h3 className="text-xl font-semibold mb-2">{item.name}</h3>
                 <p className="text-gray-700 mb-4">{item.description}</p>
                 <div className="flex flex-col md:flex-row items-center">
-                  <div className="flex gap-2">
+                  <div className="flex gap-3 flex-wrap">
                     {item.itemTypes.map((type) => (
                       <button
                         key={type.id}
                         onClick={() => handleTypeChange(item.id, type.type)}
-                        className={`border rounded-md py-1 px-2 focus:outline-none ${
+                        className={`border rounded-md py-1 px-2 gap-2 focus:outline-none ${
                           selectedType[item.id] === type.type
                             ? "bg-blue-500 text-white"
                             : "bg-gray-200 text-gray-700"
@@ -88,7 +88,7 @@ function Refill({ addToCart }) {
                   </div>
                   <button
                     onClick={() => handleAddToCart(item)}
-                    className="bg-red text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-200 ml-2"
+                    className="bg-red text-white py-2 px-4 mt-3 rounded-md hover:bg-red-700 transition duration-200 ml-2"
                   >
                     Add to Cart
                   </button>
@@ -104,7 +104,7 @@ function Refill({ addToCart }) {
             <p className="text-lg font-semibold mb-4">{modalMessage}</p>
             <button
               onClick={() => setShowModal(false)}
-              className="bg-red text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-200"
+              className="bg-red text-white py-2 px-4 mt-2 rounded-md hover:bg-red-700 transition duration-200"
             >
               Close
             </button>

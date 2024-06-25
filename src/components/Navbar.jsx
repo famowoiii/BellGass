@@ -45,10 +45,16 @@ function Navbar() {
 
   return (
     <div className="bg-white min-w-full h-16 gap-4 md:gap-24 items-center font-semibold relative mb-0 border-b-4 border-red">
-      <div className="flex flex-row justify-between p-3 pt-5 pb-10">
-        <div className="flex flex-col">
-          <div>BELL GASS</div>
+      <div className="flex flex-row justify-between p-3 pt-4 pb-11">
+        <div className="flex flex-row items-center">
+          <img
+            src="./logofix.png"
+            alt="Logo"
+            className="h-auto w-9 md:w-9 mr-1  "
+          />
+          <p className="text-lg font-bold">BELLGAS</p>
         </div>
+
         <ul className="list-none border-solid flex justify-between gap-6 px-2 md:flex hidden">
           <li>
             <Link to="/" className="hover:text-red duration-200">

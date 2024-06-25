@@ -80,11 +80,11 @@ function Products({ setCartItem, cartItem, addToCart }) {
                   alt={item.name}
                   className="w-1/6 h-auto object-cover"
                 />
-                <div>
+                <div className="flex-1">
                   <h3 className="text-xl font-semibold mb-2">{item.name}</h3>
                   <p className="text-gray-700 mb-4">{item.description}</p>
                   <div className="flex flex-col md:flex-row items-center">
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-3 mb-3 md:mb-0">
                       {item.itemTypes.map((type) => (
                         <button
                           key={type.id}
@@ -101,7 +101,7 @@ function Products({ setCartItem, cartItem, addToCart }) {
                     </div>
                     <button
                       onClick={() => handleAddToCart(item)}
-                      className="bg-red text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-200 ml-2"
+                      className="bg-red text-white py-2 px-4 rounded-md hover:bg-red transition duration-200 ml-2"
                     >
                       Add to Cart
                     </button>

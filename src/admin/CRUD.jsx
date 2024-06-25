@@ -33,7 +33,7 @@ function ProductForm({
   });
 
   const [newProductType, setNewProductType] = useState({
-    type: "",
+    type: "1kg",
     price: 0,
     stock: 0,
     refill: false,
@@ -74,6 +74,10 @@ function ProductForm({
     }
 
     const sanitizedType = sanitizeType(newProductType.type);
+
+    // Log the newProductType state
+    console.log("newProductType before submission:", newProductType);
+
     const formData = new FormData();
     formData.append("id", selectedProduct);
     formData.append("type", sanitizedType);
@@ -93,13 +97,14 @@ function ProductForm({
       });
 
       setNewProductType({
-        type: "",
+        type: "1kg", // Resetting to default value
         price: 0,
         stock: 0,
         refill: false,
         image: null,
       });
-      onRefresh(); // Trigger refresh
+      onRefresh();
+      window.location.reload(); // Trigger refresh
     } catch (error) {
       console.error("Error adding product type:", error.message);
       if (error.response) {
@@ -369,6 +374,49 @@ function ProductDashboard() {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState("");
   const [refresh, setRefresh] = useState(false);
+  const [editStock, setEditStock] = useState(false);
+  const [stock, setStock] = useState(0);
+  const [selectedItemType, setSelectedItemType] = useState("");
+
+  const openEdit = (itemTypeId) => {
+    setSelectedItemType(itemTypeId); // Simpan ID jenis item yang dipilih
+    setEditStock(true);
+  };
+  const handleUpdateStock = async (itemTypeId) => {
+    const auth_token = localStorage.getItem("auth_token");
+    const authToken = JSON.parse(auth_token);
+    const token = authToken.token;
+
+    if (!token) {
+      console.error("auth_token tidak ditemukan");
+      return;
+    }
+
+    try {
+      // Kirim permintaan PUT untuk update stock berdasarkan ID jenis item
+      await axios.put(
+        "http://localhost:3010/admin/item/type",
+        { id: selectedItemType, stock: stock }, // Kirim ID jenis item dalam payload
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Refresh produk setelah update berhasil
+      handleRefresh();
+      setEditStock(false); // Tutup form edit setelah update berhasil
+    } catch (error) {
+      console.error("Error updating stock:", error.message);
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+        console.error("Error response status:", error.response.status);
+        console.error("Error response headers:", error.response.headers);
+      }
+    }
+  };
 
   // Di dalam komponen ProductDashboard
   const handleDeleteLastProductType = async (productId) => {
@@ -382,35 +430,17 @@ function ProductDashboard() {
     }
 
     try {
-      // Mengambil produk yang sesuai dengan ID
-      const selectedItem = products.find((product) => product.id === productId);
-
-      if (!selectedItem || !selectedItem.itemTypes) {
-        console.error("Selected product or its item types not found");
-        return;
-      }
-
-      // Mengambil tipe produk terakhir
-      const lastItemType =
-        selectedItem.itemTypes[selectedItem.itemTypes.length - 1];
-
-      if (!lastItemType) {
-        console.error("No item types found for the selected product");
-        return;
-      }
-
-      // Menghapus tipe produk terakhir dengan mengirimkan permintaan DELETE
-      await axios.delete("http://localhost:3010/admin/item/type", {
+      await axios.delete(`http://localhost:3010/admin/item/type`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
         data: {
-          id: lastItemType.id,
+          id: productId,
         },
       });
 
-      // Refresh produk setelah penghapusan berhasil
-      handleRefresh();
+      console.log("Product type deleted successfully");
+      handleRefresh(); // Refresh produk setelah penghapusan berhasil
     } catch (error) {
       console.error("Error deleting last product type:", error.message);
       if (error.response) {
@@ -508,12 +538,52 @@ function ProductDashboard() {
 
                         <button
                           onClick={() =>
-                            handleDeleteLastProductType(product.id)
+                            handleDeleteLastProductType(itemType.id)
                           }
-                          className="bg-red text-white py-1 px-2 rounded inline-block"
+                          className="bg-red mx-2 text-white py-1 px-2 rounded inline-block"
                         >
                           Delete
                         </button>
+                        <button
+                          onClick={() => openEdit(itemType.id)}
+                          className="bg-blue-500 mx-2 text-white py-1 px-4 rounded"
+                        >
+                          Edit Stock
+                        </button>
+                        <div className="p-8">
+                          {/* Form Edit Stock */}
+                          {editStock && selectedItemType === itemType.id && (
+                            <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50">
+                              <div className="bg-white p-8 rounded shadow-md">
+                                <h2 className="text-lg font-bold mb-4">
+                                  Edit Stock
+                                </h2>
+                                <input
+                                  type="number"
+                                  value={stock}
+                                  onChange={(e) =>
+                                    setStock(parseInt(e.target.value, 10))
+                                  }
+                                  className="w-full border rounded py-2 px-4 mb-4"
+                                />
+                                <div className="flex justify-end">
+                                  <button
+                                    onClick={() => setEditStock(false)}
+                                    className="bg-gray-500 text-white py-2 px-4 rounded mr-2"
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
+                                    onClick={handleUpdateStock}
+                                    className="bg-green-500 text-white py-2 px-4 rounded"
+                                  >
+                                    Update
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
               </div>
