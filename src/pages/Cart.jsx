@@ -48,7 +48,7 @@ function Cart({
           <div className="text-center text-gray-600">Your cart is empty.</div>
         ) : (
           cartItem.map((selectedProduct, index) => {
-            const imageUrl = `${process.env.REACT_APP_API_URL}/${selectedProduct.itemTypes[0].url}`;
+            const imageUrl = `http://110.173.135.202/api/${selectedProduct.itemTypes[0].url}`;
             console.log("Image URL:", imageUrl); // Debug: log image URL
 
             return (

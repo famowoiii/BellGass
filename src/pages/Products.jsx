@@ -12,7 +12,7 @@ function Products({ addToCart }) {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/guest/item`
+          `http://110.173.135.202/api/guest/item`
         );
         console.log("API response:", response.data.data); // Log data from API
         const refillProducts = response.data.data
@@ -70,7 +70,7 @@ function Products({ addToCart }) {
               className="bg-white rounded-lg p-6 shadow-md flex flex-col md:flex-row gap-10"
             >
               <img
-                src={`${process.env.REACT_APP_API_URL}/${item.itemTypes[0].url}`}
+                src={`http://110.173.135.202/api/${item.itemTypes[0].url}`}
                 alt={item.name}
                 className="w-1/6 h-auto object-cover"
               />

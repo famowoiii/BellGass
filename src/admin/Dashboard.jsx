@@ -6,7 +6,7 @@ import OrderList from "./OrderList";
 import io from "socket.io-client";
 import AcceptedOrders from "./OrderList";
 
-const socket = io("http://110.173.135.202", {
+const socket = io("http://110.173.135.202/api", {
   reconnection: true,
 });
 

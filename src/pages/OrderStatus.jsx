@@ -8,7 +8,7 @@ function OrderStatus() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io(`${process.env.REACT_APP_API_URL}`, {
+    const newSocket = io(`http://110.173.135.202/api`, {
       reconnection: true,
     });
     setSocket(newSocket);
@@ -48,7 +48,7 @@ function OrderStatus() {
   const fetchNotifications = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/user/notify`
+        `http://110.173.135.202/api/user/notify`
       );
       setNotifications(response.data);
     } catch (error) {
@@ -64,7 +64,7 @@ function OrderStatus() {
 
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/user/order`,
+          `http://110.173.135.202/api/user/order`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -94,7 +94,7 @@ function OrderStatus() {
 
       try {
         const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/user/order/checkout`,
+          `http://110.173.135.202/api/user/order/checkout`,
           { orderId },
           {
             headers: {

@@ -11,7 +11,7 @@ function Home() {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/guest/item`
+          `http://110.173.135.202/api/guest/item`
         );
         const data = response.data.data;
         setProducts(data);
@@ -95,7 +95,7 @@ function Home() {
                     className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition duration-300"
                   >
                     <img
-                      src={`${process.env.REACT_APP_API_URL}/${itemType.url}`}
+                      src={`http://110.173.135.202/api/${itemType.url}`}
                       alt={product.name}
                       className="w-full h-48 object-cover"
                     />

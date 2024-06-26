@@ -52,18 +52,14 @@ function CheckOut({ cartItem, countItems, calculateTotal }) {
         country,
       };
 
-      await axios.post(
-        `${process.env.REACT_APP_API_URL}/user/address`,
-        addressData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.post(`http://110.173.135.202/api/user/address`, addressData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const addressResponse = await axios.get(
-        `${process.env.REACT_APP_API_URL}/user/address`,
+        `http://110.173.135.202/api/user/address`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -123,7 +119,7 @@ function CheckOut({ cartItem, countItems, calculateTotal }) {
       };
 
       const orderResponse = await axios.post(
-        `${process.env.REACT_APP_API_URL}/user/order`,
+        `http://110.173.135.202/api/user/order`,
         orderData,
         {
           headers: {

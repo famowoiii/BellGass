@@ -18,7 +18,7 @@ function OrderConfirmation() {
         const token = authToken.token;
 
         const ordersResponse = await axios.get(
-          `${process.env.REACT_APP_API_URL}/admin/order`,
+          `http://110.173.135.202/api/admin/order`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -38,7 +38,7 @@ function OrderConfirmation() {
   }, []);
 
   useEffect(() => {
-    const newSocket = io(`${process.env.REACT_APP_API_URL}`, {
+    const newSocket = io(`http://110.173.135.202/api`, {
       reconnection: true,
     });
     setSocket(newSocket);
@@ -77,7 +77,7 @@ function OrderConfirmation() {
       const token = authToken.token;
 
       const ordersResponse = await axios.get(
-        `${process.env.REACT_APP_API_URL}/admin/order`,
+        `http://110.173.135.202/api/admin/order`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -100,7 +100,7 @@ function OrderConfirmation() {
       const token = authToken.token;
 
       await axios.put(
-        `${process.env.REACT_APP_API_URL}/admin/order`,
+        `http://110.173.135.202/api/admin/order`,
         {
           id: orderId,
           status: status ? "accepted" : "rejected",
@@ -130,7 +130,7 @@ function OrderConfirmation() {
       const token = authToken.token;
 
       await axios.put(
-        `${process.env.REACT_APP_API_URL}/admin/order`,
+        `http://110.173.135.202/api/admin/order`,
         {
           id: orderId,
           delivered: deliveredStatus,

@@ -14,7 +14,7 @@ function Login({ registerHandler }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = `${process.env.REACT_APP_API_URL}/auth/login`; // Masukkan URL untuk REACT_APP_API_URL login
+      const url = `http://110.173.135.202/api/auth/login`; // Masukkan URL untuk REACT_APP_API_URL login
       const { data: res } = await axios.post(url, data);
       localStorage.setItem("auth_token", JSON.stringify(res.data));
 
