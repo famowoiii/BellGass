@@ -18,20 +18,23 @@ function RegisterCard({ toLogin }) {
     try {
       setLoading(true);
       // Replace API URL with the appropriate registration URL
-      const response = await fetch("http://110.173.135.202/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fullname,
-          username,
-          email,
-          password,
-          repeat_password,
-          phone,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/auth/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            fullname,
+            username,
+            email,
+            password,
+            repeat_password,
+            phone,
+          }),
+        }
+      );
       const data = await response.json();
       if (response.ok) {
         // Registration successful

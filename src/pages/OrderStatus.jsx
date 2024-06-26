@@ -8,7 +8,7 @@ function OrderStatus() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("http://110.173.135.202", {
+    const newSocket = io(`${process.env.REACT_APP_API_URL}`, {
       reconnection: true,
     });
     setSocket(newSocket);
@@ -47,7 +47,9 @@ function OrderStatus() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get("http://110.173.135.202/user/notify");
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/user/notify`
+      );
       setNotifications(response.data);
     } catch (error) {
       console.error("Error fetching notifications:", error.message);
@@ -61,11 +63,14 @@ function OrderStatus() {
       const token = authToken.token;
 
       try {
-        const response = await axios.get("http://110.173.135.202/user/order", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/user/order`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         const sortedData = response.data.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
@@ -89,7 +94,7 @@ function OrderStatus() {
 
       try {
         const response = await axios.post(
-          `http://110.173.135.202/user/order/checkout`,
+          `${process.env.REACT_APP_API_URL}/user/order/checkout`,
           { orderId },
           {
             headers: {

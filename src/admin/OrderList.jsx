@@ -16,7 +16,7 @@ function AcceptedOrders() {
         const token = authToken.token;
 
         const ordersResponse = await axios.get(
-          "http://110.173.135.202/admin/order",
+          `${process.env.REACT_APP_API_URL}/admin/order`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

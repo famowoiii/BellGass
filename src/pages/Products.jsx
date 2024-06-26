@@ -11,7 +11,9 @@ function Products({ addToCart }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://110.173.135.202/guest/item");
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/guest/item`
+        );
         console.log("API response:", response.data.data); // Log data from API
         const refillProducts = response.data.data
           .map((item) => ({
@@ -68,7 +70,7 @@ function Products({ addToCart }) {
               className="bg-white rounded-lg p-6 shadow-md flex flex-col md:flex-row gap-10"
             >
               <img
-                src={`http://110.173.135.202/${item.itemTypes[0].url}`}
+                src={`${process.env.REACT_APP_API_URL}/${item.itemTypes[0].url}`}
                 alt={item.name}
                 className="w-1/6 h-auto object-cover"
               />

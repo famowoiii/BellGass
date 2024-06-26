@@ -89,12 +89,16 @@ function ProductForm({
     }
 
     try {
-      await axios.post("http://110.173.135.202/admin/item/type", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/admin/item/type`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       setNewProductType({
         type: "1kg", // Resetting to default value
@@ -140,7 +144,7 @@ function ProductForm({
 
     try {
       const response = await axios.post(
-        "http://110.173.135.202/admin/item",
+        `${process.env.REACT_APP_API_URL}/admin/item`,
         formData,
         {
           headers: {
@@ -395,7 +399,7 @@ function ProductDashboard() {
     try {
       // Kirim permintaan PUT untuk update stock berdasarkan ID jenis item
       await axios.put(
-        "http://110.173.135.202/admin/item/type",
+        `${process.env.REACT_APP_API_URL}/admin/item/type`,
         { id: selectedItemType, stock: stock }, // Kirim ID jenis item dalam payload
         {
           headers: {
@@ -430,7 +434,7 @@ function ProductDashboard() {
     }
 
     try {
-      await axios.delete(`http://110.173.135.202/admin/item/type`, {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/admin/item/type`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -457,7 +461,7 @@ function ProductDashboard() {
     const token = authToken.token;
 
     axios
-      .get("http://110.173.135.202/admin/item", {
+      .get(`${process.env.REACT_APP_API_URL}/admin/item`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -518,7 +522,7 @@ function ProductDashboard() {
                       <div key={itemType.id} className="mb-4">
                         {itemType.url && (
                           <img
-                            src={`http://110.173.135.202/${itemType.url}`}
+                            src={`${process.env.REACT_APP_API_URL}/${itemType.url}`}
                             alt={product.name}
                             className="w-full h-48 object-cover mb-2"
                           />
