@@ -8,7 +8,7 @@ function OrderStatus() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("http://bellgas.com.au", {
+    const newSocket = io("http://110.173.135.202", {
       reconnection: true,
     });
     setSocket(newSocket);
@@ -47,7 +47,7 @@ function OrderStatus() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get("http://bellgas.com.au/user/notify");
+      const response = await axios.get("http://110.173.135.202/user/notify");
       setNotifications(response.data);
     } catch (error) {
       console.error("Error fetching notifications:", error.message);
@@ -61,7 +61,7 @@ function OrderStatus() {
       const token = authToken.token;
 
       try {
-        const response = await axios.get("http://bellgas.com.au/user/order", {
+        const response = await axios.get("http://110.173.135.202/user/order", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -81,9 +81,29 @@ function OrderStatus() {
     }
   };
 
-  const handlePayment = (orderId) => {
-    console.log(`Redirecting to payment for order ${orderId}`);
-    // Example: window.location.href = `/payment/${orderId}`;
+  const handlePayment = async (orderId) => {
+    const auth_token = localStorage.getItem("auth_token");
+    if (auth_token) {
+      const authToken = JSON.parse(auth_token);
+      const token = authToken.token;
+
+      try {
+        const response = await axios.post(
+          `http://110.173.135.202/user/order/checkout`,
+          { orderId },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const paymentLink = response.data.data.paymentLink;
+        console.log(`Redirecting to payment for order ${orderId}`);
+        window.location.href = paymentLink; // Redirect to the payment URL
+      } catch (error) {
+        console.error("Error initiating payment:", error.message);
+      }
+    }
   };
 
   return (
@@ -132,11 +152,11 @@ function OrderStatus() {
               </div>
               {order.status === "accepted" && (
                 <button
-                  className="mt-4 w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition duration-200"
-                  onClick={() => handlePayment(order.id)}
+                  className="mt-4 w-full py-2 sm:text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+                  onClick={() => handlePayment(order.id)} // Pass the order.id to handlePayment
                 >
                   Proceed to Payment{" "}
-                  <span className="font-bold">(Checkout)</span>
+                  <span className="font-semibold">(Checkout)</span>
                 </button>
               )}
             </div>

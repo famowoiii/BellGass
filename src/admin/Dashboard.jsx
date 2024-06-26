@@ -6,7 +6,7 @@ import OrderList from "./OrderList";
 import io from "socket.io-client";
 import AcceptedOrders from "./OrderList";
 
-const socket = io("http://bellgas.com.au", {
+const socket = io("http://110.173.135.202", {
   reconnection: true,
 });
 
@@ -100,7 +100,7 @@ function Dashboard() {
       </div>
       {/* Konten */}
       <div className="flex-1 bg-gray-100 p-8">
-        <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="bg-white rounded-lg shadow-lg p-8">
           {selectedComponent}
         </div>
       </div>

@@ -89,7 +89,7 @@ function ProductForm({
     }
 
     try {
-      await axios.post("http://bellgas.com.au/admin/item/type", formData, {
+      await axios.post("http://110.173.135.202/admin/item/type", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -140,7 +140,7 @@ function ProductForm({
 
     try {
       const response = await axios.post(
-        "http://bellgas.com.au/admin/item",
+        "http://110.173.135.202/admin/item",
         formData,
         {
           headers: {
@@ -180,7 +180,7 @@ function ProductForm({
 
   return (
     <div>
-      <form className="mb-8 p-4 bg-white rounded shadow-md">
+      <form className="mb-8 p-4 bg-white rounded shadow-">
         <h2 className="text-xl font-bold mb-4">Add New Product</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -280,7 +280,7 @@ function ProductForm({
         </button>
       </form>
 
-      <form className="mb-8 p-3 bg-white rounded shadow-md">
+      <form className="mb-8 p-3 bg-white rounded shadow-lg">
         <h2 className="text-xl font-bold mb-4">Add New Product Type</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -395,7 +395,7 @@ function ProductDashboard() {
     try {
       // Kirim permintaan PUT untuk update stock berdasarkan ID jenis item
       await axios.put(
-        "http://bellgas.com.au/admin/item/type",
+        "http://110.173.135.202/admin/item/type",
         { id: selectedItemType, stock: stock }, // Kirim ID jenis item dalam payload
         {
           headers: {
@@ -430,7 +430,7 @@ function ProductDashboard() {
     }
 
     try {
-      await axios.delete(`http://bellgas.com.au/admin/item/type`, {
+      await axios.delete(`http://110.173.135.202/admin/item/type`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -457,7 +457,7 @@ function ProductDashboard() {
     const token = authToken.token;
 
     axios
-      .get("http://bellgas.com.au/admin/item", {
+      .get("http://110.173.135.202/admin/item", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -494,7 +494,7 @@ function ProductDashboard() {
         products={products}
         onRefresh={handleRefresh}
       />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3  gap-4">
         {products.length > 0 &&
           products
             .filter(
@@ -503,8 +503,8 @@ function ProductDashboard() {
                 product.itemTypes.some((itemType) => !itemType.deletedAt)
             )
             .map((product) => (
-              <div key={product.id} className="p-4 bg-white rounded shadow-md">
-                <p className="text-gray-700 mb-2">
+              <div key={product.id} className="p-4 bg-white rounded shadow-lg">
+                <p className="text-gray-700 mb-2 font-bold">
                   Product Name: {product.name}
                 </p>
                 <p className="text-gray-700 mb-2">
@@ -518,7 +518,7 @@ function ProductDashboard() {
                       <div key={itemType.id} className="mb-4">
                         {itemType.url && (
                           <img
-                            src={`http://bellgas.com.au/${itemType.url}`}
+                            src={`http://110.173.135.202/${itemType.url}`}
                             alt={product.name}
                             className="w-full h-48 object-cover mb-2"
                           />
@@ -554,7 +554,7 @@ function ProductDashboard() {
                           {/* Form Edit Stock */}
                           {editStock && selectedItemType === itemType.id && (
                             <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50">
-                              <div className="bg-white p-8 rounded shadow-md">
+                              <div className="bg-white p-8 rounded shadow-lg">
                                 <h2 className="text-lg font-bold mb-4">
                                   Edit Stock
                                 </h2>

@@ -52,14 +52,14 @@ function CheckOut({ cartItem, countItems, calculateTotal }) {
         country,
       };
 
-      await axios.post("http://bellgas.com.au/user/address", addressData, {
+      await axios.post("http://110.173.135.202/user/address", addressData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       const addressResponse = await axios.get(
-        "http://bellgas.com.au/user/address",
+        "http://110.173.135.202/user/address",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -119,7 +119,7 @@ function CheckOut({ cartItem, countItems, calculateTotal }) {
       };
 
       const orderResponse = await axios.post(
-        "http://bellgas.com.au/user/order",
+        "http://110.173.135.202/user/order",
         orderData,
         {
           headers: {

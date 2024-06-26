@@ -18,7 +18,7 @@ function OrderConfirmation() {
         const token = authToken.token;
 
         const ordersResponse = await axios.get(
-          "http://bellgas.com.au/admin/order",
+          "http://110.173.135.202/admin/order",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -38,7 +38,7 @@ function OrderConfirmation() {
   }, []);
 
   useEffect(() => {
-    const newSocket = io("http://bellgas.com.au", {
+    const newSocket = io("http://110.173.135.202", {
       reconnection: true,
     });
     setSocket(newSocket);
@@ -77,7 +77,7 @@ function OrderConfirmation() {
       const token = authToken.token;
 
       const ordersResponse = await axios.get(
-        "http://bellgas.com.au/admin/order",
+        "http://110.173.135.202/admin/order",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -100,7 +100,7 @@ function OrderConfirmation() {
       const token = authToken.token;
 
       await axios.put(
-        `http://bellgas.com.au/admin/order`,
+        `http://110.173.135.202/admin/order`,
         {
           id: orderId,
           status: status ? "accepted" : "rejected",
@@ -130,7 +130,7 @@ function OrderConfirmation() {
       const token = authToken.token;
 
       await axios.put(
-        `http://bellgas.com.au/admin/order`,
+        `http://110.173.135.202/admin/order`,
         {
           id: orderId,
           delivered: deliveredStatus,

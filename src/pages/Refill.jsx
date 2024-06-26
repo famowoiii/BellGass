@@ -11,11 +11,16 @@ function Refill({ addToCart }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://bellgas.com.au/guest/item");
+        const response = await axios.get("http://110.173.135.202/guest/item");
         console.log("API response:", response.data.data); // Log data from API
-        const refillProducts = response.data.data.filter((item) =>
-          item.itemTypes.some((type) => type.refill === true)
-        );
+        const refillProducts = response.data.data
+          .map((item) => ({
+            ...item,
+            itemTypes: item.itemTypes.filter(
+              (type) => type.refill === true && !type.deletedAt
+            ),
+          }))
+          .filter((item) => item.itemTypes.length > 0);
         console.log("Filtered refill products:", refillProducts); // Log filtered data
         setProducts(refillProducts);
         setLoading(false);
@@ -63,7 +68,7 @@ function Refill({ addToCart }) {
               className="bg-white rounded-lg p-6 shadow-md flex flex-col md:flex-row gap-10"
             >
               <img
-                src={`http://bellgas.com.au/${item.itemTypes[0].url}`}
+                src={`http://110.173.135.202/${item.itemTypes[0].url}`}
                 alt={item.name}
                 className="w-1/6 h-auto object-cover"
               />

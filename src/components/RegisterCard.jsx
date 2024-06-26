@@ -18,7 +18,7 @@ function RegisterCard({ toLogin }) {
     try {
       setLoading(true);
       // Replace API URL with the appropriate registration URL
-      const response = await fetch("http://bellgas.com.au/auth/register", {
+      const response = await fetch("http://110.173.135.202/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,8 +35,8 @@ function RegisterCard({ toLogin }) {
       const data = await response.json();
       if (response.ok) {
         // Registration successful
-        // Add navigation or action logic after successful registration
         console.log("Registration successful:", data);
+        toLogin(); // Navigate to login page
       } else {
         // Registration failed
         setError(data.message || "Registration failed");
@@ -92,7 +92,7 @@ function RegisterCard({ toLogin }) {
           />
         </div>
         <div className="flex items-center border-b border-gray-300 py-2">
-          <MdOutlineEmail className="w-6 h-6 mr-3" />
+          <MdPhone className="w-6 h-6 mr-3" />
           <input
             type="number"
             placeholder="Phone Number"
@@ -129,7 +129,7 @@ function RegisterCard({ toLogin }) {
 
       <div className="flex justify-center">
         <button
-          className="bg-red hover:bg-red text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          className="bg-red hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           onClick={handleRegister}
           disabled={loading}
         >
