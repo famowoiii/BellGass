@@ -12,7 +12,7 @@ export default {
         grey: "#a8a8a8",
       },
       backgroundImage: {
-        homebg: "url('./homefirst.png')",
+        homebg: "url('./homefirst.webp')",
         homebgsc: "url('./homesecond.png')",
       },
       blur: {

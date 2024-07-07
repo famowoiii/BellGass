@@ -38,7 +38,7 @@ function OrderConfirmation() {
   }, []);
 
   useEffect(() => {
-    const newSocket = io(`http://110.173.135.202/api`, {
+    const newSocket = io(`http://110.173.135.202:3010`, {
       reconnection: true,
     });
     setSocket(newSocket);

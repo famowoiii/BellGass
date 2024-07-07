@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
 function Products({ addToCart }) {
   const [products, setProducts] = useState([]);
   const [selectedType, setSelectedType] = useState({});
@@ -59,7 +58,9 @@ function Products({ addToCart }) {
 
   return (
     <div className="container mx-auto py-8">
-      <h2 className="text-3xl font-bold text-center mb-6">Refill Products</h2>
+      <h2 className="text-3xl font-bold text-center mb-6">
+        Non-Refill Products
+      </h2>
       <div className="grid grid-cols-1 gap-6">
         {loading ? (
           <div className="text-center">Loading... please wait</div>
@@ -111,6 +112,7 @@ function Products({ addToCart }) {
             <p className="text-lg font-semibold mb-4">{modalMessage}</p>
             <button
               onClick={() => setShowModal(false)}
+              to="/cart"
               className="bg-red text-white py-2 px-4 mt-2 rounded-md hover:bg-red-700 transition duration-200"
             >
               Close

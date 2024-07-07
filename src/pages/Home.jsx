@@ -57,19 +57,10 @@ function Home() {
           </div>
         </div>
         <div className="py-12 md:text-left">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque, Lorem
-          ipsum dolor sit, amet consectetur adipisicing elit. Aliquid suscipit
-          sed quaerat expedita maxime sequi? Voluptate iste harum laudantium
-          sapiene esse adipisci facilis inventore, aut nisi, possimus vel
-          corrupti architecto veritatis provident repudiandae, quasi accusantium
-          ducimus. Distinctio at maxime adipisci assumenda nam, praesentium
-          nobis. Veniam iste debitis laborum incidunt sit accusamus excepturi
-          eum nemo culpa adipisci accusantium saepe corrupti optio odit enim
-          dolorum vitae, inventore reiciendis, rerum reprehenderit voluptas
-          vero. Illum quos animi, molestiae ipsam quis laudantium fuga ab
-          consectetur natus ut, blanditiis incidunt sit assumenda atque
-          voluptatum, maxime qui iste debitis? Sunt, exercitationem. Amet quia
-          omnis impedit laboriosam voluptatem. placeat voluptatem?
+          Bell Gass is a trusted gas bottle store providing high-quality
+          products in Australia, especially in New South Wales, Bellingen. We
+          offer delivery services with fast and responsive customer support to
+          ensure your needs are met efficiently and reliably.
         </div>
       </div>
       <div className="flex justify-center py-5 pb-8">

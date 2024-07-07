@@ -19,10 +19,8 @@ function Footer() {
         </div>
         <div className="font-signika">
           <p className="text-lg text-red">Contact Us</p>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam,
-            architecto.
-          </p>
+          <p>+61266551063</p>
+          <p>995 Waterfall Way, Bellingen NSW 2454, Australia</p>
         </div>
         <div className="font-signika">
           <p className="text-lg text-red">Useful Links</p>

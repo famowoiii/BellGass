@@ -4,27 +4,32 @@ import { io } from "socket.io-client";
 
 function OrderStatus() {
   const [data, setData] = useState(null);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState([]); // Initialize as an empty array
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io(`http://110.173.135.202/api`, {
+    const authToken = JSON.parse(localStorage.getItem("auth_token"));
+    const token = authToken ? authToken.token : "";
+    const userID = authToken.id;
+
+    const newSocket = io(`http://110.173.135.202:3010`, {
       reconnection: true,
+      auth: {
+        token,
+      },
     });
     setSocket(newSocket);
 
-    newSocket.on("connect", () => {
-      console.log("Connected to the server.");
-    });
-
-    newSocket.on("notifyAdmin", (message) => {
-      console.log("New notification For Admin:", message);
-    });
-
     newSocket.on("notifyUser", (message) => {
       console.log("New notification For User:", message);
-      setNotifications((prev) => [...prev, message]);
-      fetchOrderStatus();
+      setNotifications((prev) => {
+        if (!Array.isArray(prev)) {
+          console.error("Previous notifications state is not an array", prev);
+          return [];
+        }
+        return [...prev, message];
+      });
+      fetchOrderStatus(); // Call fetchOrderStatus after receiving a notification
     });
 
     newSocket.on("disconnect", () => {
@@ -46,67 +51,104 @@ function OrderStatus() {
   }, []);
 
   const fetchNotifications = async () => {
+    const auth_token = localStorage.getItem("auth_token");
+    if (!auth_token) {
+      console.error("No auth token found");
+      return;
+    }
+
+    const authToken = JSON.parse(auth_token);
+    const token = authToken.token;
+
     try {
       const response = await axios.get(
-        `http://110.173.135.202/api/user/notify`
+        `http://110.173.135.202/api/user/notify`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-      setNotifications(response.data);
+      if (!Array.isArray(response.data)) {
+        console.error("Fetched notifications is not an array", response.data);
+        setNotifications([]);
+      } else {
+        setNotifications(response.data);
+      }
+      console.log("Fetched notifications:", response.data);
     } catch (error) {
       console.error("Error fetching notifications:", error.message);
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+        console.error("Error response status:", error.response.status);
+        console.error("Error response headers:", error.response.headers);
+      }
     }
   };
 
   const fetchOrderStatus = async () => {
     const auth_token = localStorage.getItem("auth_token");
-    if (auth_token) {
-      const authToken = JSON.parse(auth_token);
-      const token = authToken.token;
+    if (!auth_token) {
+      console.error("No auth token found");
+      return;
+    }
 
-      try {
-        const response = await axios.get(
-          `http://110.173.135.202/api/user/order`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const sortedData = response.data.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        setData(sortedData);
-      } catch (error) {
-        console.error("Error fetching orders:", error.message);
-        if (error.response) {
-          console.error("Error response data:", error.response.data);
-          console.error("Error response status:", error.response.status);
-          console.error("Error response headers:", error.response.headers);
+    const authToken = JSON.parse(auth_token);
+    const token = authToken.token;
+
+    try {
+      const response = await axios.get(
+        `http://110.173.135.202/api/user/order`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
+      const sortedData = response.data.data.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setData(sortedData);
+      console.log("Fetched order status:", sortedData);
+    } catch (error) {
+      console.error("Error fetching orders:", error.message);
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+        console.error("Error response status:", error.response.status);
+        console.error("Error response headers:", error.response.headers);
       }
     }
   };
 
   const handlePayment = async (orderId) => {
     const auth_token = localStorage.getItem("auth_token");
-    if (auth_token) {
-      const authToken = JSON.parse(auth_token);
-      const token = authToken.token;
+    if (!auth_token) {
+      console.error("No auth token found");
+      return;
+    }
 
-      try {
-        const response = await axios.post(
-          `http://110.173.135.202/api/user/order/checkout`,
-          { orderId },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const paymentLink = response.data.data.paymentLink;
-        console.log(`Redirecting to payment for order ${orderId}`);
-        window.location.href = paymentLink; // Redirect to the payment URL
-      } catch (error) {
-        console.error("Error initiating payment:", error.message);
+    const authToken = JSON.parse(auth_token);
+    const token = authToken.token;
+
+    try {
+      const response = await axios.post(
+        `http://110.173.135.202/api/user/order/checkout`,
+        { orderId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const paymentLink = response.data.data.paymentLink;
+      console.log(`Redirecting to payment for order ${orderId}`);
+      window.location.href = paymentLink; // Redirect to the payment URL
+    } catch (error) {
+      console.error("Error initiating payment:", error.message);
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+        console.error("Error response status:", error.response.status);
+        console.error("Error response headers:", error.response.headers);
       }
     }
   };
